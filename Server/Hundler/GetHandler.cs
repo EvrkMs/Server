@@ -19,7 +19,7 @@ namespace Server.Hundler
             var parts = message.Split(':');
             if (parts.Length != 2 || parts[0] != "GetZarp")
             {
-                await SendErrorMessage(webSocket, result, "Некорректный формат сообщения.");
+                await HandlerUtils.SendErrorMessage(webSocket, result, "Некорректный формат сообщения.");
                 return;
             }
 
@@ -36,7 +36,7 @@ namespace Server.Hundler
             }
             else
             {
-                await SendErrorMessage(webSocket, result, $"Сотрудник {name} не найден.");
+                await HandlerUtils.SendErrorMessage(webSocket, result, $"Сотрудник {name} не найден.");
             }
         }
         public static async Task HandleGetSeyfMessage(IServiceProvider services, WebSocket webSocket, WebSocketReceiveResult result)
@@ -46,11 +46,11 @@ namespace Server.Hundler
 
             if (currentAmount.HasValue)
             {
-                await SendSuccessMessage(webSocket, result, $"Текущая сумма в сейфе: {currentAmount.Value}");
+                await HandlerUtils.SendSuccessMessage(webSocket, result, $"Текущая сумма в сейфе: {currentAmount.Value}");
             }
             else
             {
-                await SendErrorMessage(webSocket, result, "Сейф не найден.");
+                await HandlerUtils.SendErrorMessage(webSocket, result, "Сейф не найден.");
             }
         }
 
@@ -92,18 +92,6 @@ namespace Server.Hundler
             using var scope = services.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<MyDbContext>();
             return await dbContext.TelegramSettings.ToListAsync();
-        }
-
-        private static async Task SendErrorMessage(WebSocket webSocket, WebSocketReceiveResult result, string errorMessage)
-        {
-            var errorResponse = Encoding.UTF8.GetBytes($"Ошибка: {errorMessage}");
-            await webSocket.SendAsync(new ArraySegment<byte>(errorResponse), result.MessageType, true, CancellationToken.None);
-        }
-
-        private static async Task SendSuccessMessage(WebSocket webSocket, WebSocketReceiveResult result, string successMessage)
-        {
-            var successResponse = Encoding.UTF8.GetBytes(successMessage);
-            await webSocket.SendAsync(new ArraySegment<byte>(successResponse), result.MessageType, true, CancellationToken.None);
         }
     }
 }

@@ -13,23 +13,8 @@ namespace Soft
         public AddEmployeeForm()
         {
             InitializeComponent();
-        }
+            cancelButton.Click += (sender, e) => this.Close();
 
-        private void InitializeComponent()
-        {
-            this.Text = "Добавить сотрудника";
-            this.Size = new System.Drawing.Size(400, 300);
-
-            var nameLabel = new Label { Text = "Имя:", Location = new System.Drawing.Point(10, 10) };
-            var nameTextBox = new TextBox { Location = new System.Drawing.Point(100, 10), Width = 200 };
-            var telegramIdLabel = new Label { Text = "Telegram ID:", Location = new System.Drawing.Point(10, 40) };
-            var telegramIdTextBox = new TextBox { Location = new System.Drawing.Point(100, 40), Width = 200 };
-            var countLabel = new Label { Text = "Количество смен:", Location = new System.Drawing.Point(10, 70) };
-            var countTextBox = new TextBox { Location = new System.Drawing.Point(100, 70), Width = 200 };
-            var zarpLabel = new Label { Text = "Зарплата:", Location = new System.Drawing.Point(10, 100) };
-            var zarpTextBox = new TextBox { Location = new System.Drawing.Point(100, 100), Width = 200 };
-
-            var addButton = new Button { Text = "Добавить", Location = new System.Drawing.Point(100, 150) };
             addButton.Click += (sender, e) =>
             {
                 if (string.IsNullOrWhiteSpace(nameTextBox.Text) ||
@@ -49,20 +34,6 @@ namespace Soft
                 this.DialogResult = DialogResult.OK;
                 this.Close();
             };
-
-            var cancelButton = new Button { Text = "Отмена", Location = new System.Drawing.Point(200, 150) };
-            cancelButton.Click += (sender, e) => this.Close();
-
-            this.Controls.Add(nameLabel);
-            this.Controls.Add(nameTextBox);
-            this.Controls.Add(telegramIdLabel);
-            this.Controls.Add(telegramIdTextBox);
-            this.Controls.Add(countLabel);
-            this.Controls.Add(countTextBox);
-            this.Controls.Add(zarpLabel);
-            this.Controls.Add(zarpTextBox);
-            this.Controls.Add(addButton);
-            this.Controls.Add(cancelButton);
         }
     }
 }

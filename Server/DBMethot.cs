@@ -134,6 +134,30 @@ namespace Server
             // Сохраняем изменения
             await _context.SaveChangesAsync();
         }
+        public async Task<bool> UpdateUserAsync(string name, long? telegramId, int? count, decimal? zarp)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Name == name);
+            if (user == null) return false;
+
+            // Обновляем данные только если они были переданы
+            if (telegramId.HasValue)
+            {
+                user.TelegramId = telegramId.Value;
+            }
+
+            if (count.HasValue)
+            {
+                user.Count = count.Value;
+            }
+
+            if (zarp.HasValue)
+            {
+                user.Zarp = zarp.Value;
+            }
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
 
         // Метод для получения текущей суммы в сейфе
         public async Task<decimal?> GetSafeAmountAsync()

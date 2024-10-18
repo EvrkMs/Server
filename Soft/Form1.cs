@@ -11,25 +11,14 @@ namespace Soft
 {
     public partial class Form1 : MaterialForm
     {
-        private readonly MaterialSkinManager materialSkinManager;
         private ClientWebSocket client;
         private LogsForm logsForm;
-
-        // Объявляем employeesList как поле класса
-        private MaterialListView employeesList;
 
         public Form1()
         {
             InitializeComponent();
             // Настройка MaterialSkin
-            materialSkinManager = MaterialSkinManager.Instance;
-            materialSkinManager.AddFormToManage(this);
-            materialSkinManager.Theme = MaterialSkinManager.Themes.LIGHT;
-            materialSkinManager.ColorScheme = new ColorScheme(
-                Primary.Blue500, Primary.Blue700,
-                Primary.Blue100, Accent.LightBlue200,
-                TextShade.WHITE
-            );
+
             logsForm = new LogsForm(); // Инициализируем форму логов
             logsForm.Show(); // Показываем форму логов
 
@@ -59,27 +48,6 @@ namespace Soft
 
         private void InitializeTabs(string employeesData)
         {
-            var tabControl = new MaterialTabControl
-            {
-                Dock = DockStyle.Fill
-            };
-
-            // Вкладка "Сотрудники"
-            var employeesTab = new TabPage("Сотрудники");
-            tabControl.TabPages.Add(employeesTab);
-
-            // Инициализируем список сотрудников
-            employeesList = new MaterialListView
-            {
-                Dock = DockStyle.Fill,
-                FullRowSelect = true,
-                View = View.Details
-            };
-
-            employeesList.Columns.Add("ID", 50);
-            employeesList.Columns.Add("Имя", 150);
-            employeesList.Columns.Add("Телеграм ID", 100);
-            employeesList.Columns.Add("Зарплата", 100);
             employeesList.DoubleClick += (sender, e) =>
             {
                 if (employeesList.SelectedItems.Count > 0)
@@ -92,29 +60,8 @@ namespace Soft
 
             // Заполняем список сотрудников после получения данных
             ProcessMessage(employeesData);
-
-            // Добавляем в интерфейс
-            employeesTab.Controls.Add(employeesList);
-
-            // Кнопки добавления и архивации сотрудников
-            var addButton = new MaterialButton
-            {
-                Text = "Добавить сотрудника",
-                Dock = DockStyle.Bottom
-            };
             addButton.Click += (sender, e) => AddEmployee();
-
-            var archiveButton = new MaterialButton
-            {
-                Text = "Архивировать",
-                Dock = DockStyle.Bottom
-            };
             archiveButton.Click += (sender, e) => ArchiveEmployee(employeesList);
-
-            employeesTab.Controls.Add(addButton);
-            employeesTab.Controls.Add(archiveButton);
-
-            this.Controls.Add(tabControl);
         }
         private void ShowEmployeeDetails(int employeeId)
         {

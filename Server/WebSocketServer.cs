@@ -22,6 +22,9 @@ namespace Server
 
                     switch (message.Split(':')[0])
                     {
+                        case "UpdateUser":
+                            await PostHandler.HandleUpdateUserMessage(context.RequestServices, webSocket, result, message);
+                            break;
                         case "PostUser":
                             await PostHandler.HandlePostUserMessage(context.RequestServices, webSocket, result, message);
                             break;
