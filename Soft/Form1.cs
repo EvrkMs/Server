@@ -367,6 +367,25 @@ namespace Soft
         {
             tabControl.SelectedIndex = 0;
         }
+
+        private void TelegramSettings_Click(object sender, EventArgs e)
+        {
+
+        }
+    }
+    public class TelegramSettings
+    {
+        public int Id { get; set; }
+        public string TokenBot { get; set; }
+        public long ForwardChat { get; set; }
+        public long ChatId { get; set; }
+        public long PhotoChat { get; set; }
+        public int TraidSmena { get; set; }
+        public int TreidShtraph { get; set; }
+        public decimal TraidRashod { get; set; }
+        public int TraidPostavka { get; set; }
+        public int TraidPhoto { get; set; }
+        public string Password { get; set; }
     }
     public class SalaryHistory
     {

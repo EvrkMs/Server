@@ -33,6 +33,7 @@ namespace Soft
             addButton = new MaterialButton();
             archiveButton = new MaterialButton();
             showSalaryHistoryButton = new MaterialButton();
+            TelegramSettings = new MaterialButton();
             salaryTab = new TabPage();
             currentSalaryLabel = new Label();
             ReturnTabControlZero = new MaterialButton();
@@ -68,6 +69,7 @@ namespace Soft
             employeesTab.Controls.Add(addButton);
             employeesTab.Controls.Add(archiveButton);
             employeesTab.Controls.Add(showSalaryHistoryButton);
+            employeesTab.Controls.Add(TelegramSettings);
             employeesTab.Location = new Point(4, 24);
             employeesTab.Name = "employeesTab";
             employeesTab.Padding = new Padding(3);
@@ -91,7 +93,7 @@ namespace Soft
             employeesList.MouseState = MouseState.OUT;
             employeesList.Name = "employeesList";
             employeesList.OwnerDraw = true;
-            employeesList.Size = new Size(926, 444);
+            employeesList.Size = new Size(926, 408);
             employeesList.TabIndex = 0;
             employeesList.UseCompatibleStateImageBehavior = false;
             employeesList.View = View.Details;
@@ -129,7 +131,7 @@ namespace Soft
             editButton.Dock = DockStyle.Bottom;
             editButton.HighEmphasis = true;
             editButton.Icon = null;
-            editButton.Location = new Point(3, 447);
+            editButton.Location = new Point(3, 411);
             editButton.Margin = new Padding(4, 6, 4, 6);
             editButton.MouseState = MouseState.HOVER;
             editButton.Name = "editButton";
@@ -149,7 +151,7 @@ namespace Soft
             addButton.Dock = DockStyle.Bottom;
             addButton.HighEmphasis = true;
             addButton.Icon = null;
-            addButton.Location = new Point(3, 483);
+            addButton.Location = new Point(3, 447);
             addButton.Margin = new Padding(4, 6, 4, 6);
             addButton.MouseState = MouseState.HOVER;
             addButton.Name = "addButton";
@@ -168,7 +170,7 @@ namespace Soft
             archiveButton.Dock = DockStyle.Bottom;
             archiveButton.HighEmphasis = true;
             archiveButton.Icon = null;
-            archiveButton.Location = new Point(3, 519);
+            archiveButton.Location = new Point(3, 483);
             archiveButton.Margin = new Padding(4, 6, 4, 6);
             archiveButton.MouseState = MouseState.HOVER;
             archiveButton.Name = "archiveButton";
@@ -187,7 +189,7 @@ namespace Soft
             showSalaryHistoryButton.Dock = DockStyle.Bottom;
             showSalaryHistoryButton.HighEmphasis = true;
             showSalaryHistoryButton.Icon = null;
-            showSalaryHistoryButton.Location = new Point(3, 555);
+            showSalaryHistoryButton.Location = new Point(3, 519);
             showSalaryHistoryButton.Margin = new Padding(4, 6, 4, 6);
             showSalaryHistoryButton.MouseState = MouseState.HOVER;
             showSalaryHistoryButton.Name = "showSalaryHistoryButton";
@@ -198,6 +200,27 @@ namespace Soft
             showSalaryHistoryButton.Type = MaterialButton.MaterialButtonType.Contained;
             showSalaryHistoryButton.UseAccentColor = false;
             showSalaryHistoryButton.Click += ShowSalaryHistoryButton_Click;
+            // 
+            // TelegramSettings
+            // 
+            TelegramSettings.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            TelegramSettings.Density = MaterialButton.MaterialButtonDensity.Default;
+            TelegramSettings.Depth = 0;
+            TelegramSettings.Dock = DockStyle.Bottom;
+            TelegramSettings.HighEmphasis = true;
+            TelegramSettings.Icon = null;
+            TelegramSettings.Location = new Point(3, 555);
+            TelegramSettings.Margin = new Padding(4, 6, 4, 6);
+            TelegramSettings.MouseState = MouseState.HOVER;
+            TelegramSettings.Name = "TelegramSettings";
+            TelegramSettings.NoAccentTextColor = Color.Empty;
+            TelegramSettings.Size = new Size(926, 36);
+            TelegramSettings.TabIndex = 2;
+            TelegramSettings.Text = "Настройки телеграма";
+            TelegramSettings.Type = MaterialButton.MaterialButtonType.Contained;
+            TelegramSettings.UseAccentColor = true;
+            TelegramSettings.UseVisualStyleBackColor = true;
+            TelegramSettings.Click += TelegramSettings_Click;
             // 
             // salaryTab
             // 
@@ -373,5 +396,6 @@ namespace Soft
         private MaterialButton showSalaryHistoryButton;
         private MaterialButton ReturnTabControlZero;
         private Label currentSalaryLabel;
+        private MaterialButton TelegramSettings;
     }
 }
