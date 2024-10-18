@@ -73,7 +73,7 @@ namespace Server.Hundler
             }
             else
             {
-                await HandlerUtils.SendErrorMessage(webSocket, result, $"Сотрудник {name} не найден.");
+                await HandlerUtils.SendSuccessMessage(webSocket, result, $"Сотрудник {name} не найден: 0");
             }
         }
         public static async Task HandleGetSeyfMessage(IServiceProvider services, WebSocket webSocket, WebSocketReceiveResult result)

@@ -320,7 +320,7 @@ namespace Soft
                 var salaryHistory = Newtonsoft.Json.JsonConvert.DeserializeObject<List<SalaryHistory>>(message);
                 if (salaryHistory == null || salaryHistory.Count == 0)
                 {
-                    MessageBox.Show("История зарплат для сотрудника не найдена.");
+                    MessageBox.Show("История зарплат у сотрудника пуста");
                     return;
                 }
 

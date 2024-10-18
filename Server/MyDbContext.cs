@@ -2,8 +2,10 @@
 
 namespace Server
 {
-    public class MyDbContext(DbContextOptions<MyDbContext> options) : DbContext(options)
+    public class MyDbContext : DbContext
     {
+        public MyDbContext(DbContextOptions<MyDbContext> options) : base(options) { }
+
         public DbSet<User> Users { get; set; }
         public DbSet<TelegramSettings> TelegramSettings { get; set; }
         public DbSet<Salary> Salaries { get; set; }
@@ -12,6 +14,66 @@ namespace Server
         public DbSet<SafeChange> SafeChanges { get; set; }
         public DbSet<SalaryHistory> SalaryHistory { get; set; }
         public DbSet<ArchivedUser> ArchivedUsers { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            // Устанавливаем связь между пользователем и зарплатой
+            modelBuilder.Entity<Salary>()
+                .HasOne(s => s.User) // Связываем с таблицей Users
+                .WithOne() // Один к одному
+                .HasForeignKey<Salary>(s => s.UserId) // Внешний ключ
+                .OnDelete(DeleteBehavior.Restrict); // Запрещаем каскадное удаление, чтобы зарплата не удалялась
+
+            // Устанавливаем значение по умолчанию для зарплаты
+            modelBuilder.Entity<Salary>()
+                .Property(s => s.TotalSalary)
+                .HasDefaultValue(0); // Зарплата по умолчанию 0
+
+            base.OnModelCreating(modelBuilder);
+        }
+
+        // Добавляем пользователя вместе с записью о зарплате
+        public async Task AddUserAsync(User newUser)
+        {
+            using var transaction = await Database.BeginTransactionAsync();
+
+            // Добавляем нового пользователя
+            Users.Add(newUser);
+            await SaveChangesAsync();
+
+            // Создаем запись о зарплате
+            var salary = new Salary
+            {
+                UserId = newUser.Id,
+                TotalSalary = 0  // Зарплата по умолчанию
+            };
+            Salaries.Add(salary);
+            await SaveChangesAsync();
+
+            await transaction.CommitAsync();
+        }
+
+        // Архивирование пользователя
+        public async Task ArchiveUserAsync(int userId)
+        {
+            var user = await Users.FindAsync(userId);
+            if (user == null) throw new Exception("Пользователь не найден.");
+
+            // Перемещаем пользователя в архив
+            ArchivedUsers.Add(new ArchivedUser
+            {
+                Id = user.Id,
+                Name = user.Name,
+                TelegramId = user.TelegramId,
+                Count = user.Count,
+                Zarp = user.Zarp,
+                ArchivedDate = DateTime.UtcNow
+            });
+
+            // Удаляем пользователя из основной таблицы
+            Users.Remove(user);
+            await SaveChangesAsync();
+        }
     }
 
     public class User
@@ -44,11 +106,10 @@ namespace Server
         public int UserId { get; set; }
         public decimal TotalSalary { get; set; }
         public bool? IsArchived { get; set; } = false;  // Новый флаг для архивирования
+        public User User { get; set; }
 
         // Связь с историей изменений
         public List<SalaryChange> SalaryChanges { get; set; }
-
-        public User User { get; set; }
     }
 
     public class SalaryChange

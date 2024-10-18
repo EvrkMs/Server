@@ -228,14 +228,15 @@ namespace Soft
             ReturnTabControlZero.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             ReturnTabControlZero.Density = MaterialButton.MaterialButtonDensity.Default;
             ReturnTabControlZero.Depth = 0;
+            ReturnTabControlZero.Dock = DockStyle.Bottom;
             ReturnTabControlZero.HighEmphasis = true;
             ReturnTabControlZero.Icon = null;
-            ReturnTabControlZero.Location = new Point(672, 562);
+            ReturnTabControlZero.Location = new Point(0, 558);
             ReturnTabControlZero.Margin = new Padding(4, 6, 4, 6);
             ReturnTabControlZero.MouseState = MouseState.HOVER;
             ReturnTabControlZero.Name = "ReturnTabControlZero";
             ReturnTabControlZero.NoAccentTextColor = Color.Empty;
-            ReturnTabControlZero.Size = new Size(260, 36);
+            ReturnTabControlZero.Size = new Size(932, 36);
             ReturnTabControlZero.TabIndex = 4;
             ReturnTabControlZero.Text = "Назад в список сотрудников";
             ReturnTabControlZero.Type = MaterialButton.MaterialButtonType.Contained;
