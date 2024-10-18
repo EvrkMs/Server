@@ -370,7 +370,7 @@ namespace Soft
 
         private void TelegramSettings_Click(object sender, EventArgs e)
         {
-
+            MessageBox.Show("В реализации");
         }
     }
     public class TelegramSettings
