@@ -215,7 +215,7 @@ namespace Soft
             // 
             // currentSalaryLabel
             // 
-            currentSalaryLabel.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            currentSalaryLabel.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             currentSalaryLabel.Location = new Point(671, 0);
             currentSalaryLabel.Name = "currentSalaryLabel";
             currentSalaryLabel.Size = new Size(261, 23);
