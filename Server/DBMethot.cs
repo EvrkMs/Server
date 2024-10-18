@@ -33,6 +33,32 @@ namespace Server
             await _context.SaveChangesAsync();
             return true;
         }
+        public async Task<bool> AddUserAsync(string name, long telegramId, int count, decimal zarp)
+        {
+            try
+            {
+                // Создаём нового сотрудника
+                var newUser = new User
+                {
+                    Name = name,
+                    TelegramId = telegramId,
+                    Count = count,
+                    Zarp = zarp
+                };
+
+                // Добавляем сотрудника в базу данных
+                _context.Users.Add(newUser);
+                await _context.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // Логируем ошибку, если добавление не удалось
+                Console.WriteLine($"Ошибка при добавлении сотрудника: {ex.Message}");
+                return false;
+            }
+        }
 
         public async Task<bool> UpdateSafeAmountAsync(decimal amountChange)
         {

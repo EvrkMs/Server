@@ -1,4 +1,4 @@
-namespace ServerSoft
+namespace Soft
 {
     internal static class Program
     {

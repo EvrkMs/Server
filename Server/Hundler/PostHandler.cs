@@ -6,6 +6,49 @@ namespace Server.Hundler
 {
     public class PostHandler
     {
+        // Метод для обработки сообщений "PostUser:Name:TelegramId:Count:Zarp"
+        public static async Task HandlePostUserMessage(IServiceProvider services, WebSocket webSocket, WebSocketReceiveResult result, string message)
+        {
+            // Разделяем сообщение по двоеточию
+            var parts = message.Split(':');
+            if (parts.Length != 5 || parts[0] != "PostUser")
+            {
+                // Некорректный формат сообщения
+                await SendErrorMessage(webSocket, result, "Некорректный формат сообщения.");
+                return;
+            }
+
+            var name = parts[1];
+            if (!long.TryParse(parts[2], out var telegramId))
+            {
+                await SendErrorMessage(webSocket, result, "Некорректный Telegram ID.");
+                return;
+            }
+            if (!int.TryParse(parts[3], out var count))
+            {
+                await SendErrorMessage(webSocket, result, "Некорректный Count.");
+                return;
+            }
+            if (!decimal.TryParse(parts[4], out var zarp))
+            {
+                await SendErrorMessage(webSocket, result, "Некорректная зарплата (Zarp).");
+                return;
+            }
+
+            // Добавляем нового сотрудника в базу данных
+            var dbMethod = services.GetRequiredService<DBMethod>();
+            var success = await dbMethod.AddUserAsync(name, telegramId, count, zarp);
+
+            // Отправляем результат клиенту
+            if (success)
+            {
+                await SendSuccessMessage(webSocket, result, $"Сотрудник {name} успешно добавлен.");
+            }
+            else
+            {
+                await SendErrorMessage(webSocket, result, "Не удалось добавить сотрудника.");
+            }
+        }
         // Метод для обработки сообщений "PostZarp:Name:zp"
         public static async Task HandlePostZarpMessage(IServiceProvider services, WebSocket webSocket, WebSocketReceiveResult result, string message)
         {

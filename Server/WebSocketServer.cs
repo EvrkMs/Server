@@ -22,6 +22,12 @@ namespace Server
 
                     switch (message.Split(':')[0])
                     {
+                        case "PostUser":
+                            await PostHandler.HandlePostUserMessage(context.RequestServices, webSocket, result, message);
+                            break;
+                        case "GetUsers":
+                            await GetHandler.HandleGetUsers(context.RequestServices, webSocket, result);
+                            break;
                         case "PostSeyf":
                             await PostHandler.HandlePostSeyfMessage(context.RequestServices, webSocket, result, message);
                             break;
