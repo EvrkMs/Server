@@ -175,5 +175,34 @@ namespace Server
             var salary = await _context.Salaries.FirstOrDefaultAsync(s => s.UserId == user.Id);
             return salary;
         }
+
+        public async Task<Salary> GetCurrentSalaryByEmployeeIdAsync(int employeeId)
+        {
+            return await _context.Salaries
+                                 .Include(s => s.SalaryChanges)
+                                 .FirstOrDefaultAsync(s => s.UserId == employeeId);
+        }
+
+        // Метод для получения истории зарплат по ID сотрудника
+        public async Task<List<SalaryHistory>> GetSalaryHistoryByEmployeeIdAsync(int employeeId)
+        {
+            return await _context.SalaryHistory
+                                 .Where(s => s.UserId == employeeId)
+                                 .ToListAsync();
+        }
+
+        // Метод для добавления истории зарплат после финализации периода
+        public async Task AddSalaryHistoryAsync(int employeeId, decimal totalSalary)
+        {
+            var salaryHistory = new SalaryHistory
+            {
+                UserId = employeeId,
+                TotalSalary = totalSalary,
+                FinalizedDate = DateTime.UtcNow
+            };
+
+            await _context.SalaryHistory.AddAsync(salaryHistory);
+            await _context.SaveChangesAsync();
+        }
     }
 }

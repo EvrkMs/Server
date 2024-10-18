@@ -43,7 +43,7 @@ namespace Server
         public int Id { get; set; }
         public int UserId { get; set; }
         public decimal TotalSalary { get; set; }
-        public bool IsArchived { get; set; } = false;  // Новый флаг для архивирования
+        public bool? IsArchived { get; set; } = false;  // Новый флаг для архивирования
 
         // Связь с историей изменений
         public List<SalaryChange> SalaryChanges { get; set; }

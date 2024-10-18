@@ -14,8 +14,40 @@ namespace Server.Hundler
             Encoder = System.Text.Encodings.Web.JavaScriptEncoder.Create(System.Text.Unicode.UnicodeRanges.BasicLatin, System.Text.Unicode.UnicodeRanges.Cyrillic),
             WriteIndented = true // Опционально для удобства чтения
         };
+        public static async Task HandleGetSalaryHistory(IServiceProvider services, WebSocket webSocket, WebSocketReceiveResult result, string message)
+        {
+            var parts = message.Split(':');
+            if (parts.Length != 2 || parts[0] != "GetSalaryHistory")
+            {
+                await HandlerUtils.SendErrorMessage(webSocket, result, "Некорректный формат сообщения.");
+                return;
+            }
+
+            if (!int.TryParse(parts[1], out var employeeId))
+            {
+                await HandlerUtils.SendErrorMessage(webSocket, result, "Некорректный ID сотрудника.");
+                return;
+            }
+
+            var dbMethod = services.GetRequiredService<DBMethod>();
+            var salaryHistory = await dbMethod.GetSalaryHistoryByEmployeeIdAsync(employeeId);
+
+            if (salaryHistory == null || !salaryHistory.Any())
+            {
+                // Возвращаем пустой массив в JSON-формате для корректного парсинга
+                var emptyResponse = "[]";
+                await webSocket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(emptyResponse)), result.MessageType, true, CancellationToken.None);
+                return;
+            }
+
+            var jsonResponse = JsonSerializer.Serialize(salaryHistory);
+            await webSocket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(jsonResponse)), result.MessageType, true, CancellationToken.None);
+        }
         public static async Task HandleGetZarp(IServiceProvider services, WebSocket webSocket, WebSocketReceiveResult result, string message)
         {
+            // Логирование полученного сообщения
+            Console.WriteLine($"Получено сообщение: {message}");
+
             var parts = message.Split(':');
             if (parts.Length != 2 || parts[0] != "GetZarp")
             {
@@ -24,6 +56,7 @@ namespace Server.Hundler
             }
 
             var name = parts[1];
+            Console.WriteLine($"Запрашивается зарплата для: {name}");
 
             var dbMethod = services.GetRequiredService<DBMethod>();
             var salary = await dbMethod.GetSalaryByNameAsync(name);
@@ -32,6 +65,10 @@ namespace Server.Hundler
             {
                 var responseMessage = $"Зарплата сотрудника {name}: {salary.TotalSalary}";
                 var responseBuffer = Encoding.UTF8.GetBytes(responseMessage);
+
+                // Логирование отправки сообщения
+                Console.WriteLine($"Отправка сообщения: {responseMessage}");
+
                 await webSocket.SendAsync(new ArraySegment<byte>(responseBuffer), result.MessageType, true, CancellationToken.None);
             }
             else
