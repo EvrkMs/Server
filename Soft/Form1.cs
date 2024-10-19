@@ -20,6 +20,7 @@ namespace Soft
             logsForm = new LogsForm(); // Инициализируем форму логов
             logsForm.Show(); // Показываем форму логов
             _ = ConnectAndInitializeAsync(); // Подключаемся к веб-сокету
+            _ = PopulateTelegramSettingsAsync();
         }
 
         // Метод для логирования сообщений
@@ -361,16 +362,47 @@ namespace Soft
         private void Refresh_Click(object sender, EventArgs e)
         {
             _ = RefreshEmployeeList();
+            _ = PopulateTelegramSettingsAsync();
+        }
+        // Отображение данных TelegramSettings в ListView
+        private async Task PopulateTelegramSettingsAsync()
+        {
+            // Отправляем запрос на получение настроек
+            await SendMessageAsync("GetSettings");
+
+            // Ожидаем ответ от сервера
+            var settingsResponse = await ReceiveMessageAsync();
+
+            // Десериализуем ответ в объект TelegramSettings
+            var settings = Newtonsoft.Json.JsonConvert.DeserializeObject<TelegramSettings>(settingsResponse);
+
+            // Заполняем chatListView
+            chatListView.Items.Clear();
+            var chatItem = new ListViewItem(settings.TokenBot);
+            chatItem.SubItems.Add(settings.ForwardChat.ToString());
+            chatItem.SubItems.Add(settings.ChatId.ToString());
+            chatItem.SubItems.Add(settings.Password.ToString());
+            chatListView.Items.Add(chatItem);
+
+            // Заполняем tradListView
+            tradListView.Items.Clear();
+            var tradItem = new ListViewItem(settings.TraidSmena.ToString());
+            tradItem.SubItems.Add(settings.TreidShtraph.ToString());
+            tradItem.SubItems.Add(settings.TraidRashod.ToString());
+            tradItem.SubItems.Add(settings.TraidPostavka.ToString());
+            tradListView.Items.Add(tradItem);
         }
 
-        private void ReturnTabControlZero_Click(object sender, EventArgs e)
+        private async void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
-            tabControl.SelectedIndex = 0;
-        }
+            if (client != null && client.State == WebSocketState.Open)
+            {
+                // Закрываем веб-сокетное подключение
+                await client.CloseAsync(WebSocketCloseStatus.NormalClosure, "Закрытие соединения", CancellationToken.None);
 
-        private void TelegramSettings_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show("В реализации");
+                // Освобождаем ресурсы клиента
+                client.Dispose();
+            }
         }
     }
     public class TelegramSettings
@@ -379,12 +411,10 @@ namespace Soft
         public string TokenBot { get; set; }
         public long ForwardChat { get; set; }
         public long ChatId { get; set; }
-        public long PhotoChat { get; set; }
         public int TraidSmena { get; set; }
         public int TreidShtraph { get; set; }
         public decimal TraidRashod { get; set; }
         public int TraidPostavka { get; set; }
-        public int TraidPhoto { get; set; }
         public string Password { get; set; }
     }
     public class SalaryHistory

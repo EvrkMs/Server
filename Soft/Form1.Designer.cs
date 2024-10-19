@@ -33,33 +33,53 @@ namespace Soft
             addButton = new MaterialButton();
             archiveButton = new MaterialButton();
             showSalaryHistoryButton = new MaterialButton();
-            TelegramSettings = new MaterialButton();
             salaryTab = new TabPage();
             currentSalaryLabel = new Label();
-            ReturnTabControlZero = new MaterialButton();
             salaryListView = new MaterialListView();
             columnDate = new ColumnHeader();
             columnAmount = new ColumnHeader();
             salarySearchTextBox = new MaterialTextBox();
             salaryHistoryButton = new MaterialButton();
+            telegramTab = new TabPage();
+            tradListView = new MaterialListView();
+            columnTradSmena = new ColumnHeader();
+            columnTredShtraph = new ColumnHeader();
+            columnTradRashod = new ColumnHeader();
+            columnTradPostavka = new ColumnHeader();
+            chatListView = new MaterialListView();
+            columnToken = new ColumnHeader();
+            columnForwardChat = new ColumnHeader();
+            columnChatId = new ColumnHeader();
+            editSettingsButton = new MaterialButton();
             Refresh = new MaterialButton();
+            tabSelector = new MaterialTabSelector();
+            columnHeader1 = new ColumnHeader();
+            columnHeader2 = new ColumnHeader();
+            columnHeader3 = new ColumnHeader();
+            columnHeader4 = new ColumnHeader();
+            columnHeader5 = new ColumnHeader();
+            columnHeader6 = new ColumnHeader();
+            columnHeader7 = new ColumnHeader();
+            columnPassword = new ColumnHeader();
             tabControl.SuspendLayout();
             employeesTab.SuspendLayout();
             salaryTab.SuspendLayout();
+            telegramTab.SuspendLayout();
             SuspendLayout();
             // 
             // tabControl
             // 
+            tabControl.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             tabControl.Controls.Add(employeesTab);
             tabControl.Controls.Add(salaryTab);
+            tabControl.Controls.Add(telegramTab);
             tabControl.Depth = 0;
-            tabControl.Dock = DockStyle.Fill;
             tabControl.Location = new Point(3, 64);
             tabControl.MouseState = MouseState.HOVER;
             tabControl.Multiline = true;
             tabControl.Name = "tabControl";
             tabControl.SelectedIndex = 0;
-            tabControl.Size = new Size(940, 622);
+            tabControl.Size = new Size(940, 574);
             tabControl.TabIndex = 1;
             // 
             // employeesTab
@@ -69,11 +89,10 @@ namespace Soft
             employeesTab.Controls.Add(addButton);
             employeesTab.Controls.Add(archiveButton);
             employeesTab.Controls.Add(showSalaryHistoryButton);
-            employeesTab.Controls.Add(TelegramSettings);
             employeesTab.Location = new Point(4, 24);
             employeesTab.Name = "employeesTab";
             employeesTab.Padding = new Padding(3);
-            employeesTab.Size = new Size(932, 594);
+            employeesTab.Size = new Size(932, 546);
             employeesTab.TabIndex = 0;
             employeesTab.Text = "Сотрудники";
             employeesTab.UseVisualStyleBackColor = true;
@@ -93,7 +112,7 @@ namespace Soft
             employeesList.MouseState = MouseState.OUT;
             employeesList.Name = "employeesList";
             employeesList.OwnerDraw = true;
-            employeesList.Size = new Size(926, 408);
+            employeesList.Size = new Size(926, 396);
             employeesList.TabIndex = 0;
             employeesList.UseCompatibleStateImageBehavior = false;
             employeesList.View = View.Details;
@@ -131,7 +150,7 @@ namespace Soft
             editButton.Dock = DockStyle.Bottom;
             editButton.HighEmphasis = true;
             editButton.Icon = null;
-            editButton.Location = new Point(3, 411);
+            editButton.Location = new Point(3, 399);
             editButton.Margin = new Padding(4, 6, 4, 6);
             editButton.MouseState = MouseState.HOVER;
             editButton.Name = "editButton";
@@ -151,7 +170,7 @@ namespace Soft
             addButton.Dock = DockStyle.Bottom;
             addButton.HighEmphasis = true;
             addButton.Icon = null;
-            addButton.Location = new Point(3, 447);
+            addButton.Location = new Point(3, 435);
             addButton.Margin = new Padding(4, 6, 4, 6);
             addButton.MouseState = MouseState.HOVER;
             addButton.Name = "addButton";
@@ -170,7 +189,7 @@ namespace Soft
             archiveButton.Dock = DockStyle.Bottom;
             archiveButton.HighEmphasis = true;
             archiveButton.Icon = null;
-            archiveButton.Location = new Point(3, 483);
+            archiveButton.Location = new Point(3, 471);
             archiveButton.Margin = new Padding(4, 6, 4, 6);
             archiveButton.MouseState = MouseState.HOVER;
             archiveButton.Name = "archiveButton";
@@ -189,7 +208,7 @@ namespace Soft
             showSalaryHistoryButton.Dock = DockStyle.Bottom;
             showSalaryHistoryButton.HighEmphasis = true;
             showSalaryHistoryButton.Icon = null;
-            showSalaryHistoryButton.Location = new Point(3, 519);
+            showSalaryHistoryButton.Location = new Point(3, 507);
             showSalaryHistoryButton.Margin = new Padding(4, 6, 4, 6);
             showSalaryHistoryButton.MouseState = MouseState.HOVER;
             showSalaryHistoryButton.Name = "showSalaryHistoryButton";
@@ -201,37 +220,15 @@ namespace Soft
             showSalaryHistoryButton.UseAccentColor = false;
             showSalaryHistoryButton.Click += ShowSalaryHistoryButton_Click;
             // 
-            // TelegramSettings
-            // 
-            TelegramSettings.AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            TelegramSettings.Density = MaterialButton.MaterialButtonDensity.Default;
-            TelegramSettings.Depth = 0;
-            TelegramSettings.Dock = DockStyle.Bottom;
-            TelegramSettings.HighEmphasis = true;
-            TelegramSettings.Icon = null;
-            TelegramSettings.Location = new Point(3, 555);
-            TelegramSettings.Margin = new Padding(4, 6, 4, 6);
-            TelegramSettings.MouseState = MouseState.HOVER;
-            TelegramSettings.Name = "TelegramSettings";
-            TelegramSettings.NoAccentTextColor = Color.Empty;
-            TelegramSettings.Size = new Size(926, 36);
-            TelegramSettings.TabIndex = 2;
-            TelegramSettings.Text = "Настройки телеграма";
-            TelegramSettings.Type = MaterialButton.MaterialButtonType.Contained;
-            TelegramSettings.UseAccentColor = true;
-            TelegramSettings.UseVisualStyleBackColor = true;
-            TelegramSettings.Click += TelegramSettings_Click;
-            // 
             // salaryTab
             // 
             salaryTab.Controls.Add(currentSalaryLabel);
-            salaryTab.Controls.Add(ReturnTabControlZero);
             salaryTab.Controls.Add(salaryListView);
             salaryTab.Controls.Add(salarySearchTextBox);
             salaryTab.Controls.Add(salaryHistoryButton);
             salaryTab.Location = new Point(4, 24);
             salaryTab.Name = "salaryTab";
-            salaryTab.Size = new Size(932, 594);
+            salaryTab.Size = new Size(932, 546);
             salaryTab.TabIndex = 1;
             salaryTab.Text = "Зарплата";
             salaryTab.UseVisualStyleBackColor = true;
@@ -245,27 +242,6 @@ namespace Soft
             currentSalaryLabel.TabIndex = 0;
             currentSalaryLabel.Text = "Актуальная зарплата: ";
             currentSalaryLabel.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // ReturnTabControlZero
-            // 
-            ReturnTabControlZero.AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            ReturnTabControlZero.Density = MaterialButton.MaterialButtonDensity.Default;
-            ReturnTabControlZero.Depth = 0;
-            ReturnTabControlZero.Dock = DockStyle.Bottom;
-            ReturnTabControlZero.HighEmphasis = true;
-            ReturnTabControlZero.Icon = null;
-            ReturnTabControlZero.Location = new Point(0, 558);
-            ReturnTabControlZero.Margin = new Padding(4, 6, 4, 6);
-            ReturnTabControlZero.MouseState = MouseState.HOVER;
-            ReturnTabControlZero.Name = "ReturnTabControlZero";
-            ReturnTabControlZero.NoAccentTextColor = Color.Empty;
-            ReturnTabControlZero.Size = new Size(932, 36);
-            ReturnTabControlZero.TabIndex = 4;
-            ReturnTabControlZero.Text = "Назад в список сотрудников";
-            ReturnTabControlZero.Type = MaterialButton.MaterialButtonType.Contained;
-            ReturnTabControlZero.UseAccentColor = false;
-            ReturnTabControlZero.UseVisualStyleBackColor = true;
-            ReturnTabControlZero.Click += ReturnTabControlZero_Click;
             // 
             // salaryListView
             // 
@@ -282,7 +258,7 @@ namespace Soft
             salaryListView.MouseState = MouseState.OUT;
             salaryListView.Name = "salaryListView";
             salaryListView.OwnerDraw = true;
-            salaryListView.Size = new Size(932, 594);
+            salaryListView.Size = new Size(932, 546);
             salaryListView.TabIndex = 0;
             salaryListView.UseCompatibleStateImageBehavior = false;
             salaryListView.View = View.Details;
@@ -334,6 +310,113 @@ namespace Soft
             salaryHistoryButton.UseAccentColor = false;
             salaryHistoryButton.Click += OpenSalaryHistoryTab;
             // 
+            // telegramTab
+            // 
+            telegramTab.Controls.Add(tradListView);
+            telegramTab.Controls.Add(chatListView);
+            telegramTab.Controls.Add(editSettingsButton);
+            telegramTab.Location = new Point(4, 24);
+            telegramTab.Name = "telegramTab";
+            telegramTab.Size = new Size(932, 546);
+            telegramTab.TabIndex = 2;
+            telegramTab.Text = "Настройки телеграма";
+            telegramTab.UseVisualStyleBackColor = true;
+            // 
+            // tradListView
+            // 
+            tradListView.AutoSizeTable = false;
+            tradListView.BackColor = Color.FromArgb(255, 255, 255);
+            tradListView.BorderStyle = BorderStyle.None;
+            tradListView.Columns.AddRange(new ColumnHeader[] { columnTradSmena, columnTredShtraph, columnTradRashod, columnTradPostavka });
+            tradListView.Depth = 0;
+            tradListView.Dock = DockStyle.Bottom;
+            tradListView.FullRowSelect = true;
+            tradListView.Location = new Point(0, 267);
+            tradListView.MinimumSize = new Size(200, 100);
+            tradListView.MouseLocation = new Point(-1, -1);
+            tradListView.MouseState = MouseState.OUT;
+            tradListView.Name = "tradListView";
+            tradListView.OwnerDraw = true;
+            tradListView.Size = new Size(932, 243);
+            tradListView.TabIndex = 1;
+            tradListView.UseCompatibleStateImageBehavior = false;
+            tradListView.View = View.Details;
+            // 
+            // columnTradSmena
+            // 
+            columnTradSmena.Text = "ID топика для отчётов";
+            columnTradSmena.Width = 200;
+            // 
+            // columnTredShtraph
+            // 
+            columnTredShtraph.Text = "ID топика с штрафами";
+            columnTredShtraph.Width = 200;
+            // 
+            // columnTradRashod
+            // 
+            columnTradRashod.Text = "ID топика для расходов";
+            columnTradRashod.Width = 200;
+            // 
+            // columnTradPostavka
+            // 
+            columnTradPostavka.Text = "ID топика для отчёта поставок";
+            columnTradPostavka.Width = 250;
+            // 
+            // chatListView
+            // 
+            chatListView.AutoSizeTable = false;
+            chatListView.BackColor = Color.FromArgb(255, 255, 255);
+            chatListView.BorderStyle = BorderStyle.None;
+            chatListView.Columns.AddRange(new ColumnHeader[] { columnToken, columnForwardChat, columnChatId, columnPassword });
+            chatListView.Depth = 0;
+            chatListView.Dock = DockStyle.Top;
+            chatListView.FullRowSelect = true;
+            chatListView.Location = new Point(0, 0);
+            chatListView.MinimumSize = new Size(200, 100);
+            chatListView.MouseLocation = new Point(-1, -1);
+            chatListView.MouseState = MouseState.OUT;
+            chatListView.Name = "chatListView";
+            chatListView.OwnerDraw = true;
+            chatListView.Size = new Size(932, 261);
+            chatListView.TabIndex = 0;
+            chatListView.UseCompatibleStateImageBehavior = false;
+            chatListView.View = View.Details;
+            // 
+            // columnToken
+            // 
+            columnToken.Text = "Токен телеграм бота";
+            columnToken.Width = 200;
+            // 
+            // columnForwardChat
+            // 
+            columnForwardChat.Text = "ID основного чата";
+            columnForwardChat.Width = 150;
+            // 
+            // columnChatId
+            // 
+            columnChatId.Text = "ID чата с зарплатами";
+            columnChatId.Width = 200;
+            // 
+            // editSettingsButton
+            // 
+            editSettingsButton.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            editSettingsButton.Density = MaterialButton.MaterialButtonDensity.Default;
+            editSettingsButton.Depth = 0;
+            editSettingsButton.Dock = DockStyle.Bottom;
+            editSettingsButton.HighEmphasis = true;
+            editSettingsButton.Icon = null;
+            editSettingsButton.Location = new Point(0, 510);
+            editSettingsButton.Margin = new Padding(4, 6, 4, 6);
+            editSettingsButton.MouseState = MouseState.HOVER;
+            editSettingsButton.Name = "editSettingsButton";
+            editSettingsButton.NoAccentTextColor = Color.Empty;
+            editSettingsButton.Size = new Size(932, 36);
+            editSettingsButton.TabIndex = 2;
+            editSettingsButton.Text = "Редактировать";
+            editSettingsButton.Type = MaterialButton.MaterialButtonType.Contained;
+            editSettingsButton.UseAccentColor = false;
+            editSettingsButton.UseVisualStyleBackColor = true;
+            // 
             // Refresh
             // 
             Refresh.Anchor = AnchorStyles.Top | AnchorStyles.Right;
@@ -355,6 +438,25 @@ namespace Soft
             Refresh.UseVisualStyleBackColor = false;
             Refresh.Click += Refresh_Click;
             // 
+            // tabSelector
+            // 
+            tabSelector.BaseTabControl = tabControl;
+            tabSelector.CharacterCasing = MaterialTabSelector.CustomCharacterCasing.Normal;
+            tabSelector.Depth = 0;
+            tabSelector.Dock = DockStyle.Bottom;
+            tabSelector.Font = new Font("Roboto", 14F, FontStyle.Regular, GraphicsUnit.Pixel);
+            tabSelector.Location = new Point(3, 638);
+            tabSelector.MouseState = MouseState.HOVER;
+            tabSelector.Name = "tabSelector";
+            tabSelector.Size = new Size(940, 48);
+            tabSelector.TabIndex = 2;
+            tabSelector.Text = "materialTabSelector1";
+            // 
+            // columnPassword
+            // 
+            columnPassword.Text = "Пароль от root";
+            columnPassword.Width = 200;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -362,13 +464,17 @@ namespace Soft
             ClientSize = new Size(946, 689);
             Controls.Add(Refresh);
             Controls.Add(tabControl);
+            Controls.Add(tabSelector);
             Name = "Form1";
             Text = "Сотрудники и зарплата";
+            FormClosed += Form1_FormClosed;
             tabControl.ResumeLayout(false);
             employeesTab.ResumeLayout(false);
             employeesTab.PerformLayout();
             salaryTab.ResumeLayout(false);
             salaryTab.PerformLayout();
+            telegramTab.ResumeLayout(false);
+            telegramTab.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -394,8 +500,26 @@ namespace Soft
         private MaterialTextBox salarySearchTextBox;
         private MaterialButton salaryHistoryButton;
         private MaterialButton showSalaryHistoryButton;
-        private MaterialButton ReturnTabControlZero;
         private Label currentSalaryLabel;
-        private MaterialButton TelegramSettings;
+        private MaterialTabSelector tabSelector;
+        private TabPage telegramTab;
+        private MaterialListView chatListView;
+        private ColumnHeader columnToken;
+        private ColumnHeader columnForwardChat;
+        private ColumnHeader columnChatId;
+        private ColumnHeader columnTradSmena;
+        private ColumnHeader columnTredShtraph;
+        private ColumnHeader columnTradRashod;
+        private ColumnHeader columnTradPostavka;
+        private MaterialListView tradListView;
+        private ColumnHeader columnHeader1;
+        private ColumnHeader columnHeader2;
+        private ColumnHeader columnHeader3;
+        private ColumnHeader columnHeader4;
+        private ColumnHeader columnHeader5;
+        private ColumnHeader columnHeader6;
+        private ColumnHeader columnHeader7;
+        private MaterialButton editSettingsButton;
+        private ColumnHeader columnPassword;
     }
 }

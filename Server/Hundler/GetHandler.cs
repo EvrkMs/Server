@@ -1,5 +1,4 @@
-﻿// GetHandler.cs
-using System.Net.WebSockets;
+﻿using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
@@ -8,12 +7,14 @@ namespace Server.Hundler
 {
     public class GetHandler
     {
-        // Статический экземпляр JsonSerializerOptions для кэширования
+        // Настройки для JSON сериализации (с поддержкой кириллицы)
         private static readonly JsonSerializerOptions jsonOptions = new()
         {
             Encoder = System.Text.Encodings.Web.JavaScriptEncoder.Create(System.Text.Unicode.UnicodeRanges.BasicLatin, System.Text.Unicode.UnicodeRanges.Cyrillic),
-            WriteIndented = true // Опционально для удобства чтения
+            WriteIndented = true
         };
+
+        // Метод для получения истории зарплат сотрудника по его ID
         public static async Task HandleGetSalaryHistory(IServiceProvider services, WebSocket webSocket, WebSocketReceiveResult result, string message)
         {
             var parts = message.Split(':');
@@ -34,20 +35,19 @@ namespace Server.Hundler
 
             if (salaryHistory == null || !salaryHistory.Any())
             {
-                // Возвращаем пустой массив в JSON-формате для корректного парсинга
+                // Возвращаем пустой массив, если данных нет
                 var emptyResponse = "[]";
                 await webSocket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(emptyResponse)), result.MessageType, true, CancellationToken.None);
                 return;
             }
 
-            var jsonResponse = JsonSerializer.Serialize(salaryHistory);
+            var jsonResponse = JsonSerializer.Serialize(salaryHistory, jsonOptions);
             await webSocket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(jsonResponse)), result.MessageType, true, CancellationToken.None);
         }
+
+        // Обработчик для получения зарплаты по имени сотрудника
         public static async Task HandleGetZarp(IServiceProvider services, WebSocket webSocket, WebSocketReceiveResult result, string message)
         {
-            // Логирование полученного сообщения
-            Console.WriteLine($"Получено сообщение: {message}");
-
             var parts = message.Split(':');
             if (parts.Length != 2 || parts[0] != "GetZarp")
             {
@@ -56,8 +56,6 @@ namespace Server.Hundler
             }
 
             var name = parts[1];
-            Console.WriteLine($"Запрашивается зарплата для: {name}");
-
             var dbMethod = services.GetRequiredService<DBMethod>();
             var salary = await dbMethod.GetSalaryByNameAsync(name);
 
@@ -65,17 +63,15 @@ namespace Server.Hundler
             {
                 var responseMessage = $"Зарплата сотрудника {name}: {salary.TotalSalary}";
                 var responseBuffer = Encoding.UTF8.GetBytes(responseMessage);
-
-                // Логирование отправки сообщения
-                Console.WriteLine($"Отправка сообщения: {responseMessage}");
-
                 await webSocket.SendAsync(new ArraySegment<byte>(responseBuffer), result.MessageType, true, CancellationToken.None);
             }
             else
             {
-                await HandlerUtils.SendSuccessMessage(webSocket, result, $"Сотрудник {name} не найден: 0");
+                await HandlerUtils.SendSuccessMessage(webSocket, result, $"Сотрудник {name} не найден.");
             }
         }
+
+        // Обработчик для получения текущей суммы в сейфе
         public static async Task HandleGetSeyfMessage(IServiceProvider services, WebSocket webSocket, WebSocketReceiveResult result)
         {
             var dbMethod = services.GetRequiredService<DBMethod>();
@@ -91,32 +87,18 @@ namespace Server.Hundler
             }
         }
 
-        // Метод для получения данных пользователей и отправки по WebSocket
+        // Обработчик для получения данных о пользователях
         public static async Task HandleGetUsers(IServiceProvider services, WebSocket webSocket, WebSocketReceiveResult result)
         {
             var usersData = await GetUsersAsync(services);
 
-            // Используем кэшированный экземпляр JsonSerializerOptions
             var jsonResponse = JsonSerializer.Serialize(usersData, jsonOptions);
 
-            // Отправляем данные обратно клиенту
             var responseBuffer = Encoding.UTF8.GetBytes(jsonResponse);
             await webSocket.SendAsync(new ArraySegment<byte>(responseBuffer), result.MessageType, true, CancellationToken.None);
         }
 
-        public static async Task HandleGetSettings(IServiceProvider services, WebSocket webSocket, WebSocketReceiveResult result)
-        {
-            var usersData = await GetSettigsAsync(services);
-
-            // Используем кэшированный экземпляр JsonSerializerOptions
-            var jsonResponse = JsonSerializer.Serialize(usersData, jsonOptions);
-
-            // Отправляем данные обратно клиенту
-            var responseBuffer = Encoding.UTF8.GetBytes(jsonResponse);
-            await webSocket.SendAsync(new ArraySegment<byte>(responseBuffer), result.MessageType, true, CancellationToken.None);
-        }
-
-        // Метод для получения данных из БД
+        // Вспомогательный метод для получения списка пользователей
         private static async Task<List<User>> GetUsersAsync(IServiceProvider services)
         {
             using var scope = services.CreateScope();
@@ -124,6 +106,18 @@ namespace Server.Hundler
             return await dbContext.Users.ToListAsync();
         }
 
+        // Обработчик для получения настроек Telegram
+        public static async Task HandleGetSettings(IServiceProvider services, WebSocket webSocket, WebSocketReceiveResult result)
+        {
+            var settingsData = await GetSettigsAsync(services);
+
+            var jsonResponse = JsonSerializer.Serialize(settingsData, jsonOptions);
+
+            var responseBuffer = Encoding.UTF8.GetBytes(jsonResponse);
+            await webSocket.SendAsync(new ArraySegment<byte>(responseBuffer), result.MessageType, true, CancellationToken.None);
+        }
+
+        // Вспомогательный метод для получения настроек из БД
         private static async Task<List<TelegramSettings>> GetSettigsAsync(IServiceProvider services)
         {
             using var scope = services.CreateScope();
