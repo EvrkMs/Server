@@ -82,7 +82,7 @@ namespace Server
         public string Name { get; set; }
         public long TelegramId { get; set; }
         public int Count { get; set; }
-        public decimal Zarp { get; set; }
+        public int Zarp { get; set; }
     }
 
     public class TelegramSettings
@@ -93,7 +93,7 @@ namespace Server
         public long ChatId { get; set; }
         public int TraidSmena { get; set; }
         public int TreidShtraph { get; set; }
-        public decimal TraidRashod { get; set; }
+        public int TraidRashod { get; set; }
         public int TraidPostavka { get; set; }
         public string Password { get; set; }
     }

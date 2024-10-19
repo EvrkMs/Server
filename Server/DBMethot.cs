@@ -33,7 +33,7 @@ namespace Server
             await _context.SaveChangesAsync();
             return true;
         }
-        public async Task<bool> AddUserAsync(string name, long telegramId, int count, decimal zarp)
+        public async Task<bool> AddUserAsync(string name, long telegramId, int count, int zarp)
         {
             try
             {
@@ -134,7 +134,7 @@ namespace Server
             // Сохраняем изменения
             await _context.SaveChangesAsync();
         }
-        public async Task<bool> UpdateUserAsync(string name, long? telegramId, int? count, decimal? zarp)
+        public async Task<bool> UpdateUserAsync(string name, long? telegramId, int? count, int? zarp)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Name == name);
             if (user == null) return false;
@@ -205,12 +205,11 @@ namespace Server
             await _context.SaveChangesAsync();
         }
 
-
         public async Task<bool> UpdateTelegramSettingsAsync(TelegramSettings settings)
         {
             try
             {
-                var existingSettings = await _context.TelegramSettings.FirstOrDefaultAsync(s => s.Id == 1); // Ищем запись с Id = 1
+                var existingSettings = await _context.TelegramSettings.FirstOrDefaultAsync();
 
                 if (existingSettings == null)
                 {
@@ -255,105 +254,6 @@ namespace Server
                 // Логируем полное сообщение об ошибке, включая внутреннее исключение
                 Console.WriteLine($"Ошибка при сохранении изменений: {ex.Message}, Внутреннее исключение: {ex.InnerException?.Message}");
                 return false; // Возвращаем false, если сохранение не удалось
-            }
-        }
-        public async Task<bool> UpdateTelegramSettingAsync(string settingKey, string settingValue)
-        {
-            var setting = await _context.TelegramSettings.FirstOrDefaultAsync(s => s.Id == 1); // Например, ищем по Id
-
-            if (setting == null)
-            {
-                return false; // Если запись не найдена, возвращаем false
-            }
-
-            // Обновляем соответствующее поле
-            switch (settingKey)
-            {
-                case "TokenBot":
-                    setting.TokenBot = settingValue;
-                    break;
-                case "ForwardChat":
-                    setting.ForwardChat = long.TryParse(settingValue, out var forwardChat) ? forwardChat : 0;
-                    break;
-                case "ChatId":
-                    setting.ChatId = long.TryParse(settingValue, out var chatId) ? chatId : 0;
-                    break;
-                case "TraidSmena":
-                    setting.TraidSmena = int.TryParse(settingValue, out var traidSmena) ? traidSmena : 0;
-                    break;
-                case "TreidShtraph":
-                    setting.TreidShtraph = int.TryParse(settingValue, out var treidShtraph) ? treidShtraph : 0;
-                    break;
-                case "TraidRashod":
-                    setting.TraidRashod = decimal.TryParse(settingValue, out var traidRashod) ? traidRashod : 0m;
-                    break;
-                case "TraidPostavka":
-                    setting.TraidPostavka = int.TryParse(settingValue, out var traidPostavka) ? traidPostavka : 0;
-                    break;
-                case "Password":
-                    setting.Password = !string.IsNullOrEmpty(settingValue) ? settingValue : "";
-                    break;
-                default:
-                    return false; // Если ключ не распознан
-            }
-
-            try
-            {
-                await _context.SaveChangesAsync(); // Сохраняем изменения в базе данных
-                return true; // Обновление прошло успешно
-            }
-            catch (Exception ex)
-            {
-                // Логируем полное сообщение об ошибке, включая внутреннее исключение
-                Console.WriteLine($"Ошибка при сохранении изменений: {ex.Message}, Внутреннее исключение: {ex.InnerException?.Message}");
-                return false; // Возвращаем false, если сохранение не удалось
-            }
-        }
-
-        public async Task InsertTelegramSettingAsync(string settingKey, string settingValue)
-        {
-            var setting = new TelegramSettings
-            {
-                TokenBot = settingKey == "TokenBot" ? settingValue : null,
-                ForwardChat = settingKey == "ForwardChat" ? (long.TryParse(settingValue, out var forwardChat) ? forwardChat : 0) : (long)0,
-                ChatId = settingKey == "ChatId" ? (long.TryParse(settingValue, out var chatId) ? chatId : 0) : (long)0,
-                TraidSmena = settingKey == "TraidSmena" ? (int.TryParse(settingValue, out var traidSmena) ? traidSmena : 0) : (int)0,
-                TreidShtraph = settingKey == "TreidShtraph" ? (int.TryParse(settingValue, out var treidShtraph) ? treidShtraph : 0) : (int)0,
-                TraidRashod = settingKey == "TraidRashod" ? (decimal.TryParse(settingValue, out var traidRashod) ? traidRashod : 0m) : (decimal)0,
-                TraidPostavka = settingKey == "TraidPostavka" ? (int.TryParse(settingValue, out var traidPostavka) ? traidPostavka : 0) : (int)0,
-            };
-
-            // Сохраняем настройку в базе данных
-            _context.TelegramSettings.Add(setting);
-            await _context.SaveChangesAsync();
-        }
-        public async Task<bool> InsertNewTelegramSettingAsync(string tokenBot, long forwardChat, long chatId, int traidSmena, int treidShtraph, decimal traidRashod, int traidPostavka, string password)
-        {
-            try
-            {
-                // Создаем объект настроек Telegram для добавления в базу данных
-                var newSetting = new TelegramSettings
-                {
-                    TokenBot = tokenBot,
-                    ForwardChat = forwardChat,
-                    ChatId = chatId,
-                    TraidSmena = traidSmena,
-                    TreidShtraph = treidShtraph,
-                    TraidRashod = traidRashod,
-                    TraidPostavka = traidPostavka,
-                    Password = password
-                };
-
-                // Добавляем новую запись в таблицу и сохраняем изменения
-                _context.TelegramSettings.Add(newSetting);
-                await _context.SaveChangesAsync();
-
-                return true; // Успешно добавлено
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Ошибка при добавлении новых настроек: {ex.Message}");
-                return false; // Возвращаем false, если что-то пошло не так
             }
         }
     }

@@ -387,7 +387,7 @@ namespace Soft
             // columnToken
             // 
             columnToken.Text = "Токен телеграм бота";
-            columnToken.Width = 200;
+            columnToken.Width = 400;
             // 
             // columnForwardChat
             // 

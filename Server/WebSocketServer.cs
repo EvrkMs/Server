@@ -25,9 +25,6 @@ namespace Server
                         case "UpdateUser":
                             await PostHandler.HandleUpdateUserMessage(context.RequestServices, webSocket, result, message);
                             break;
-                        case "PostSettings":
-                            await PostHandler.HandlePostSettings(context.RequestServices, webSocket, result, message);
-                            break;
                         case "GetSettings":
                             await GetHandler.HandleGetSettings(context.RequestServices, webSocket, result );
                             break;

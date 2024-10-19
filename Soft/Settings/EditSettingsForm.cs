@@ -1,6 +1,5 @@
 ﻿using MaterialSkin.Controls;
-using System.Net.WebSockets;
-using System.Text;
+using System;
 
 namespace Soft
 {
@@ -21,7 +20,7 @@ namespace Soft
             ShowAllTextboxes();  // Все текстбоксы видны для добавления
         }
 
-        public EditSettingsForm(TelegramSettings settings)
+        public EditSettingsForm(Settings.TelegramSettings settings)
         {
             InitializeComponent();
 
