@@ -50,6 +50,8 @@ namespace Soft
             columnToken = new ColumnHeader();
             columnForwardChat = new ColumnHeader();
             columnChatId = new ColumnHeader();
+            columnPassword = new ColumnHeader();
+            addSettingsButton = new MaterialButton();
             editSettingsButton = new MaterialButton();
             Refresh = new MaterialButton();
             tabSelector = new MaterialTabSelector();
@@ -60,7 +62,6 @@ namespace Soft
             columnHeader5 = new ColumnHeader();
             columnHeader6 = new ColumnHeader();
             columnHeader7 = new ColumnHeader();
-            columnPassword = new ColumnHeader();
             tabControl.SuspendLayout();
             employeesTab.SuspendLayout();
             salaryTab.SuspendLayout();
@@ -314,6 +315,7 @@ namespace Soft
             // 
             telegramTab.Controls.Add(tradListView);
             telegramTab.Controls.Add(chatListView);
+            telegramTab.Controls.Add(addSettingsButton);
             telegramTab.Controls.Add(editSettingsButton);
             telegramTab.Location = new Point(4, 24);
             telegramTab.Name = "telegramTab";
@@ -331,7 +333,7 @@ namespace Soft
             tradListView.Depth = 0;
             tradListView.Dock = DockStyle.Bottom;
             tradListView.FullRowSelect = true;
-            tradListView.Location = new Point(0, 267);
+            tradListView.Location = new Point(0, 231);
             tradListView.MinimumSize = new Size(200, 100);
             tradListView.MouseLocation = new Point(-1, -1);
             tradListView.MouseState = MouseState.OUT;
@@ -397,6 +399,32 @@ namespace Soft
             columnChatId.Text = "ID чата с зарплатами";
             columnChatId.Width = 200;
             // 
+            // columnPassword
+            // 
+            columnPassword.Text = "Пароль от root";
+            columnPassword.Width = 200;
+            // 
+            // addSettingsButton
+            // 
+            addSettingsButton.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            addSettingsButton.Density = MaterialButton.MaterialButtonDensity.Default;
+            addSettingsButton.Depth = 0;
+            addSettingsButton.Dock = DockStyle.Bottom;
+            addSettingsButton.HighEmphasis = true;
+            addSettingsButton.Icon = null;
+            addSettingsButton.Location = new Point(0, 474);
+            addSettingsButton.Margin = new Padding(4, 6, 4, 6);
+            addSettingsButton.MouseState = MouseState.HOVER;
+            addSettingsButton.Name = "addSettingsButton";
+            addSettingsButton.NoAccentTextColor = Color.Empty;
+            addSettingsButton.Size = new Size(932, 36);
+            addSettingsButton.TabIndex = 3;
+            addSettingsButton.Text = "Создать настройки";
+            addSettingsButton.Type = MaterialButton.MaterialButtonType.Contained;
+            addSettingsButton.UseAccentColor = false;
+            addSettingsButton.UseVisualStyleBackColor = true;
+            addSettingsButton.Click += AddSettingsButton_Click;
+            // 
             // editSettingsButton
             // 
             editSettingsButton.AutoSizeMode = AutoSizeMode.GrowAndShrink;
@@ -416,6 +444,7 @@ namespace Soft
             editSettingsButton.Type = MaterialButton.MaterialButtonType.Contained;
             editSettingsButton.UseAccentColor = false;
             editSettingsButton.UseVisualStyleBackColor = true;
+            editSettingsButton.Click += EditSettingsButton_Click;
             // 
             // Refresh
             // 
@@ -451,11 +480,6 @@ namespace Soft
             tabSelector.Size = new Size(940, 48);
             tabSelector.TabIndex = 2;
             tabSelector.Text = "materialTabSelector1";
-            // 
-            // columnPassword
-            // 
-            columnPassword.Text = "Пароль от root";
-            columnPassword.Width = 200;
             // 
             // Form1
             // 
@@ -521,5 +545,6 @@ namespace Soft
         private ColumnHeader columnHeader7;
         private MaterialButton editSettingsButton;
         private ColumnHeader columnPassword;
+        private MaterialButton addSettingsButton;
     }
 }

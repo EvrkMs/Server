@@ -199,5 +199,118 @@ namespace Server.Hundler
                 await HandlerUtils.SendErrorMessage(webSocket, result, "Не удалось обновить данные пользователя.");
             }
         }
+        public static async Task HandlePostSettings(IServiceProvider services, WebSocket webSocket, WebSocketReceiveResult result, string message)
+        {
+            try
+            {
+                var parts = message.Split(new[] { ':' }, 3); // Разбиваем строку только по первому и второму двоеточию
+
+                if (parts.Length != 3 || parts[0] != "PostSettings")
+                {
+                    await HandlerUtils.SendErrorMessage(webSocket, result, "Некорректный формат сообщения.");
+                    return;
+                }
+
+                var settingKey = parts[1];
+                var settingValue = parts[2];
+
+                var dbMethod = services.GetRequiredService<DBMethod>();
+
+                // Попытка обновить настройку в базе данных
+                var updated = await dbMethod.UpdateTelegramSettingAsync(settingKey, settingValue);
+
+                if (!updated) // Если обновление не удалось (например, запись не найдена)
+                {
+                    var responseMessage = $"Не удалось обновить настройку {settingKey}. Запись не найдена.";
+                    var responseBuffer = Encoding.UTF8.GetBytes(responseMessage);
+                    await webSocket.SendAsync(new ArraySegment<byte>(responseBuffer), result.MessageType, true, CancellationToken.None);
+                }
+                else
+                {
+                    // Отправляем подтверждение клиенту
+                    var responseMessage = $"Настройка {settingKey} успешно обновлена.";
+                    var responseBuffer = Encoding.UTF8.GetBytes(responseMessage);
+                    await webSocket.SendAsync(new ArraySegment<byte>(responseBuffer), result.MessageType, true, CancellationToken.None);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка при обработке команды: {ex.Message}");
+                if (webSocket.State == WebSocketState.Open)
+                {
+                    var errorMessage = Encoding.UTF8.GetBytes($"Ошибка: {ex.Message}");
+                    await webSocket.SendAsync(new ArraySegment<byte>(errorMessage), WebSocketMessageType.Text, true, CancellationToken.None);
+                }
+            }
+        }
+        public static async Task HandlePostNewSettings(IServiceProvider services, WebSocket webSocket, WebSocketReceiveResult result, string message)
+        {
+            try
+            {
+                var parts = message.Split(new[] { ':' }, StringSplitOptions.None);
+
+                if (parts.Length < 17 || parts[0] != "PostNewSettings")
+                {
+                    await HandlerUtils.SendErrorMessage(webSocket, result, "Некорректный формат сообщения.");
+                    return;
+                }
+
+                // Специальная обработка для токена, который может содержать двоеточия
+                int tokenIndex = Array.IndexOf(parts, "TokenBot");
+                if (tokenIndex == -1 || tokenIndex + 1 >= parts.Length)
+                {
+                    await HandlerUtils.SendErrorMessage(webSocket, result, "Токен не найден или некорректный формат.");
+                    return;
+                }
+
+                // Считаем, что значение токена - это всё, что находится между "TokenBot" и "ForwardChat"
+                int forwardChatIndex = Array.IndexOf(parts, "ForwardChat");
+                if (forwardChatIndex == -1)
+                {
+                    await HandlerUtils.SendErrorMessage(webSocket, result, "ForwardChat не найден или некорректный формат.");
+                    return;
+                }
+
+                // Собираем токен из всех частей между TokenBot и ForwardChat
+                string tokenValue = string.Join(":", parts, tokenIndex + 1, forwardChatIndex - tokenIndex - 1);
+
+                // Теперь продолжаем парсинг остальных значений
+                var settings = new TelegramSettings
+                {
+                    TokenBot = tokenValue,
+                    ForwardChat = long.TryParse(parts[forwardChatIndex + 1], out var forwardChat) ? forwardChat : 0,
+                    ChatId = long.TryParse(parts[forwardChatIndex + 3], out var chatId) ? chatId : 0,
+                    TraidSmena = int.TryParse(parts[forwardChatIndex + 5], out var traidSmena) ? traidSmena : 0,
+                    TreidShtraph = int.TryParse(parts[forwardChatIndex + 7], out var treidShtraph) ? treidShtraph : 0,
+                    TraidRashod = decimal.TryParse(parts[forwardChatIndex + 9], out var traidRashod) ? traidRashod : 0m,
+                    TraidPostavka = int.TryParse(parts[forwardChatIndex + 11], out var traidPostavka) ? traidPostavka : 0,
+                    Password = parts[forwardChatIndex + 13]
+                };
+
+                var dbMethod = services.GetRequiredService<DBMethod>();
+
+                var success = await dbMethod.UpdateTelegramSettingsAsync(settings);
+
+                if (success)
+                {
+                    var responseMessage = "Настройки успешно обновлены.";
+                    var responseBuffer = Encoding.UTF8.GetBytes(responseMessage);
+                    await webSocket.SendAsync(new ArraySegment<byte>(responseBuffer), result.MessageType, true, CancellationToken.None);
+                }
+                else
+                {
+                    await HandlerUtils.SendErrorMessage(webSocket, result, "Не удалось обновить настройки.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка при обработке команды: {ex.Message}");
+                if (webSocket.State == WebSocketState.Open)
+                {
+                    var errorMessage = Encoding.UTF8.GetBytes($"Ошибка: {ex.Message}");
+                    await webSocket.SendAsync(new ArraySegment<byte>(errorMessage), WebSocketMessageType.Text, true, CancellationToken.None);
+                }
+            }
+        }
     }
 }

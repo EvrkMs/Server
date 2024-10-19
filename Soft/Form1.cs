@@ -11,8 +11,8 @@ namespace Soft
 {
     public partial class Form1 : MaterialForm
     {
-        private ClientWebSocket client;
-        private LogsForm logsForm;
+        private static ClientWebSocket client;
+        private static LogsForm logsForm;
 
         public Form1()
         {
@@ -20,11 +20,10 @@ namespace Soft
             logsForm = new LogsForm(); // Инициализируем форму логов
             logsForm.Show(); // Показываем форму логов
             _ = ConnectAndInitializeAsync(); // Подключаемся к веб-сокету
-            _ = PopulateTelegramSettingsAsync();
         }
 
         // Метод для логирования сообщений
-        private void LogMessage(string message)
+        private static void LogMessage(string message)
         {
             logsForm.AppendLog(message);
         }
@@ -36,6 +35,7 @@ namespace Soft
             await SendMessageAsync("GetUsers"); // Запрашиваем список сотрудников
             var employeesData = await ReceiveMessageAsync(); // Получаем данные о сотрудниках
             InitializeTabs(employeesData); // Инициализируем вкладки
+            _ = PopulateTelegramSettingsAsync();
         }
 
         // Метод для инициализации вкладок
@@ -68,7 +68,7 @@ namespace Soft
         }
 
         // Отправка сообщения через веб-сокет
-        private async Task SendMessageAsync(string message)
+        public static async Task SendMessageAsync(string message)
         {
             LogMessage($"Отправка сообщения: {message}");
             var buffer = Encoding.UTF8.GetBytes(message);
@@ -196,6 +196,7 @@ namespace Soft
             await SendMessageAsync("GetUsers");
             var employeesData = await ReceiveMessageAsync();
             ProcessMessage(employeesData);
+            await PopulateTelegramSettingsAsync();
         }
 
         // Переход на вкладку с историей зарплат
@@ -362,7 +363,6 @@ namespace Soft
         private void Refresh_Click(object sender, EventArgs e)
         {
             _ = RefreshEmployeeList();
-            _ = PopulateTelegramSettingsAsync();
         }
         // Отображение данных TelegramSettings в ListView
         private async Task PopulateTelegramSettingsAsync()
@@ -373,24 +373,51 @@ namespace Soft
             // Ожидаем ответ от сервера
             var settingsResponse = await ReceiveMessageAsync();
 
-            // Десериализуем ответ в объект TelegramSettings
-            var settings = Newtonsoft.Json.JsonConvert.DeserializeObject<TelegramSettings>(settingsResponse);
+            // Логируем ответ
+            LogMessage($"Получен ответ с настройками: {settingsResponse}");
 
-            // Заполняем chatListView
-            chatListView.Items.Clear();
-            var chatItem = new ListViewItem(settings.TokenBot);
-            chatItem.SubItems.Add(settings.ForwardChat.ToString());
-            chatItem.SubItems.Add(settings.ChatId.ToString());
-            chatItem.SubItems.Add(settings.Password.ToString());
-            chatListView.Items.Add(chatItem);
+            // Десериализуем ответ в массив объектов TelegramSettings
+            var settingsArray = Newtonsoft.Json.JsonConvert.DeserializeObject<List<TelegramSettings>>(settingsResponse);
 
-            // Заполняем tradListView
-            tradListView.Items.Clear();
-            var tradItem = new ListViewItem(settings.TraidSmena.ToString());
-            tradItem.SubItems.Add(settings.TreidShtraph.ToString());
-            tradItem.SubItems.Add(settings.TraidRashod.ToString());
-            tradItem.SubItems.Add(settings.TraidPostavka.ToString());
-            tradListView.Items.Add(tradItem);
+            // Проверяем наличие настроек, если есть, заполняем ListView
+            if (settingsArray != null && settingsArray.Count > 0)
+            {
+                var settings = settingsArray.FirstOrDefault();
+
+                // Если настройки отсутствуют, показываем кнопку добавления
+                if (settings == null)
+                {
+                    addSettingsButton.Visible = true;
+                    editSettingsButton.Visible = false;
+                    chatListView.Items.Clear();
+                    tradListView.Items.Clear();
+                    return;
+                }
+
+                // Скрываем кнопку добавления и показываем редактирование
+                addSettingsButton.Visible = false;
+                editSettingsButton.Visible = true;
+
+                // Заполняем chatListView (для TokenBot, ForwardChat, ChatId, Password)
+                chatListView.Items.Clear();
+                var chatItem = new ListViewItem(settings.TokenBot);
+                chatItem.SubItems.Add(settings.ForwardChat.ToString());
+                chatItem.SubItems.Add(settings.ChatId.ToString());
+                chatItem.SubItems.Add(settings.Password.ToString());
+                chatListView.Items.Add(chatItem);
+
+                // Заполняем tradListView (для TraidSmena, TreidShtraph, TraidRashod, TraidPostavka)
+                tradListView.Items.Clear();
+                var tradItem = new ListViewItem(settings.TraidSmena.ToString());
+                tradItem.SubItems.Add(settings.TreidShtraph.ToString());
+                tradItem.SubItems.Add(settings.TraidRashod.ToString());
+                tradItem.SubItems.Add(settings.TraidPostavka.ToString());
+                tradListView.Items.Add(tradItem);
+            }
+            else
+            {
+                LogMessage("Настройки не найдены.");
+            }
         }
 
         private async void Form1_FormClosed(object sender, FormClosedEventArgs e)
@@ -402,6 +429,109 @@ namespace Soft
 
                 // Освобождаем ресурсы клиента
                 client.Dispose();
+            }
+        }
+
+        private async void EditSettingsButton_Click(object sender, EventArgs e)
+        {
+            // Если есть данные для редактирования
+            if (chatListView.Items.Count > 0 && tradListView.Items.Count > 0)
+            {
+                // Получаем выбранные элементы
+                var selectedChatItem = chatListView.Items[0];
+                var selectedTradItem = tradListView.Items[0];
+
+                // Создаем объект с настройками
+                var settings = new TelegramSettings
+                {
+                    TokenBot = selectedChatItem.SubItems[0].Text,
+                    ForwardChat = long.Parse(selectedChatItem.SubItems[1].Text),
+                    ChatId = long.Parse(selectedChatItem.SubItems[2].Text),
+                    Password = selectedChatItem.SubItems[3].Text, // Здесь правильный столбец для пароля
+                    TraidSmena = int.Parse(selectedTradItem.SubItems[0].Text),
+                    TreidShtraph = int.Parse(selectedTradItem.SubItems[1].Text),
+                    TraidRashod = decimal.Parse(selectedTradItem.SubItems[2].Text),
+                    TraidPostavka = int.Parse(selectedTradItem.SubItems[3].Text)
+                };
+
+                // Открываем форму для редактирования с текущими настройками
+                var editForm = new EditSettingsForm(settings);
+
+                var result = editForm.ShowDialog();
+
+                if (result == DialogResult.OK)
+                {
+                    // Отправляем запросы на сервер для обновления данных
+                    await UpdateTelegramSettingsAsync(editForm);
+                }
+            }
+        }
+
+        private async void AddSettingsButton_Click(object sender, EventArgs e)
+        {
+            // Открываем пустую форму для добавления настроек
+            var editForm = new EditSettingsForm();
+            var result = editForm.ShowDialog();
+
+            if (result == DialogResult.OK)
+            {
+                // Отправляем запросы на сервер для добавления данных
+                await UpdateTelegramSettingsAsync(editForm);
+            }
+        }
+        private async Task UpdateTelegramSettingsAsync(EditSettingsForm editForm)
+        {
+            // Собираем все параметры в один запрос
+            var message = new StringBuilder("PostNewSettings");
+
+            if (!string.IsNullOrEmpty(editForm.TokenBot))
+            {
+                message.Append($":TokenBot:{editForm.TokenBot}");
+            }
+            if (!string.IsNullOrEmpty(editForm.ForwardChat))
+            {
+                message.Append($":ForwardChat:{editForm.ForwardChat}");
+            }
+            if (!string.IsNullOrEmpty(editForm.ChatId))
+            {
+                message.Append($":ChatId:{editForm.ChatId}");
+            }
+            if (!string.IsNullOrEmpty(editForm.TraidSmena))
+            {
+                message.Append($":TraidSmena:{editForm.TraidSmena}");
+            }
+            if (!string.IsNullOrEmpty(editForm.TreidShtraph))
+            {
+                message.Append($":TreidShtraph:{editForm.TreidShtraph}");
+            }
+            if (!string.IsNullOrEmpty(editForm.TraidRashod))
+            {
+                message.Append($":TraidRashod:{editForm.TraidRashod}");
+            }
+            if (!string.IsNullOrEmpty(editForm.TraidPostavka))
+            {
+                message.Append($":TraidPostavka:{editForm.TraidPostavka}");
+            }
+            if (!string.IsNullOrEmpty(editForm.Password))
+            {
+                message.Append($":Password:{editForm.Password}");
+            }
+
+            // Отправляем запрос с собранными параметрами
+            await SendMessageAsync(message.ToString());
+
+            // Получаем ответ от сервера
+            var serverResponse = await ReceiveMessageAsync();
+
+            // Логируем и показываем сообщение пользователю
+            LogMessage($"Ответ сервера: {serverResponse}");
+            if (serverResponse.Contains("успешно обновлены"))
+            {
+                MessageBox.Show("Настройки успешно обновлены.");
+            }
+            else
+            {
+                MessageBox.Show($"Ошибка: {serverResponse}");
             }
         }
     }

@@ -109,12 +109,45 @@ namespace Server.Hundler
         // Обработчик для получения настроек Telegram
         public static async Task HandleGetSettings(IServiceProvider services, WebSocket webSocket, WebSocketReceiveResult result)
         {
-            var settingsData = await GetSettigsAsync(services);
+            try
+            {
+                // Получаем настройки
+                var settingsData = await GetSettigsAsync(services);
 
-            var jsonResponse = JsonSerializer.Serialize(settingsData, jsonOptions);
+                if (settingsData == null)
+                {
+                    // Если данные настроек отсутствуют
+                    await HandlerUtils.SendErrorMessage(webSocket, result, "Настройки не найдены.");
+                    return;
+                }
 
-            var responseBuffer = Encoding.UTF8.GetBytes(jsonResponse);
-            await webSocket.SendAsync(new ArraySegment<byte>(responseBuffer), result.MessageType, true, CancellationToken.None);
+                // Проверяем, что данные валидны
+                var jsonOptions = new JsonSerializerOptions
+                {
+                    WriteIndented = true, // Для удобства чтения
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase, // Если нужно
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                };
+
+                // Сериализуем настройки в JSON
+                var jsonResponse = JsonSerializer.Serialize(settingsData, jsonOptions);
+
+                // Отправляем ответ клиенту
+                var responseBuffer = Encoding.UTF8.GetBytes(jsonResponse);
+                await webSocket.SendAsync(new ArraySegment<byte>(responseBuffer), result.MessageType, true, CancellationToken.None);
+            }
+            catch (JsonException ex)
+            {
+                // Логируем ошибку сериализации
+                Console.WriteLine($"Ошибка при сериализации настроек: {ex.Message}");
+                await HandlerUtils.SendErrorMessage(webSocket, result, "Ошибка при сериализации настроек.");
+            }
+            catch (Exception ex)
+            {
+                // Логируем любые другие ошибки
+                Console.WriteLine($"Общая ошибка при обработке настроек: {ex.Message}");
+                await HandlerUtils.SendErrorMessage(webSocket, result, "Ошибка при обработке настроек.");
+            }
         }
 
         // Вспомогательный метод для получения настроек из БД
