@@ -1,7 +1,4 @@
-﻿using MaterialSkin;
-using MaterialSkin.Controls;
-using System;
-using System.Windows.Forms;
+﻿using MaterialSkin.Controls;
 
 namespace Soft
 {
@@ -20,7 +17,7 @@ namespace Soft
             employeeIdLabel.Text = $"Редактирование сотрудника с ID: {employeeId}";
         }
 
-        private void saveButton_Click(object sender, EventArgs e)
+        private void SaveButton_Click(object sender, EventArgs e)
         {
             // Проверяем каждое текстовое поле и обрабатываем пустые значения
             if (string.IsNullOrWhiteSpace(telegramIdTextBox.Text))

@@ -1,6 +1,4 @@
 ﻿using MaterialSkin.Controls;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace Soft.Users.Salary
 {

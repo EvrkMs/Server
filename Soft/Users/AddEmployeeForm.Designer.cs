@@ -1,4 +1,4 @@
-﻿namespace Soft
+﻿namespace Soft.Users
 {
     partial class AddEmployeeForm
     {
@@ -28,131 +28,154 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.nameLabel = new System.Windows.Forms.Label();
-            this.nameTextBox = new System.Windows.Forms.TextBox();
-            this.telegramIdLabel = new System.Windows.Forms.Label();
-            this.telegramIdTextBox = new System.Windows.Forms.TextBox();
-            this.countLabel = new System.Windows.Forms.Label();
-            this.countTextBox = new System.Windows.Forms.TextBox();
-            this.zarpLabel = new System.Windows.Forms.Label();
-            this.zarpTextBox = new System.Windows.Forms.TextBox();
-            this.addButton = new System.Windows.Forms.Button();
-            this.cancelButton = new System.Windows.Forms.Button();
-            this.SuspendLayout();
-            // 
-            // nameLabel
-            // 
-            this.nameLabel.AutoSize = true;
-            this.nameLabel.Location = new System.Drawing.Point(10, 10);
-            this.nameLabel.Name = "nameLabel";
-            this.nameLabel.Size = new System.Drawing.Size(29, 13);
-            this.nameLabel.TabIndex = 0;
-            this.nameLabel.Text = "Имя:";
+            nameTextBox = new MaterialSkin.Controls.MaterialTextBox();
+            telegramIdTextBox = new MaterialSkin.Controls.MaterialTextBox();
+            countTextBox = new MaterialSkin.Controls.MaterialTextBox();
+            zarpTextBox = new MaterialSkin.Controls.MaterialTextBox();
+            addButton = new MaterialSkin.Controls.MaterialButton();
+            cancelButton = new MaterialSkin.Controls.MaterialButton();
+            SuspendLayout();
             // 
             // nameTextBox
             // 
-            this.nameTextBox.Location = new System.Drawing.Point(100, 10);
-            this.nameTextBox.Name = "nameTextBox";
-            this.nameTextBox.Size = new System.Drawing.Size(200, 20);
-            this.nameTextBox.TabIndex = 1;
-            // 
-            // telegramIdLabel
-            // 
-            this.telegramIdLabel.AutoSize = true;
-            this.telegramIdLabel.Location = new System.Drawing.Point(10, 40);
-            this.telegramIdLabel.Name = "telegramIdLabel";
-            this.telegramIdLabel.Size = new System.Drawing.Size(65, 13);
-            this.telegramIdLabel.TabIndex = 2;
-            this.telegramIdLabel.Text = "Telegram ID:";
+            nameTextBox.AnimateReadOnly = false;
+            nameTextBox.BorderStyle = BorderStyle.None;
+            nameTextBox.Depth = 0;
+            nameTextBox.Font = new Font("Roboto", 16F, FontStyle.Regular, GraphicsUnit.Pixel);
+            nameTextBox.Hint = "Имя";
+            nameTextBox.LeadingIcon = null;
+            nameTextBox.Location = new Point(13, 59);
+            nameTextBox.Margin = new Padding(4, 3, 4, 3);
+            nameTextBox.MaxLength = 50;
+            nameTextBox.MouseState = MaterialSkin.MouseState.OUT;
+            nameTextBox.Multiline = false;
+            nameTextBox.Name = "nameTextBox";
+            nameTextBox.Size = new Size(233, 50);
+            nameTextBox.TabIndex = 1;
+            nameTextBox.Text = "";
+            nameTextBox.TrailingIcon = null;
             // 
             // telegramIdTextBox
             // 
-            this.telegramIdTextBox.Location = new System.Drawing.Point(100, 40);
-            this.telegramIdTextBox.Name = "telegramIdTextBox";
-            this.telegramIdTextBox.Size = new System.Drawing.Size(200, 20);
-            this.telegramIdTextBox.TabIndex = 3;
-            // 
-            // countLabel
-            // 
-            this.countLabel.AutoSize = true;
-            this.countLabel.Location = new System.Drawing.Point(10, 70);
-            this.countLabel.Name = "countLabel";
-            this.countLabel.Size = new System.Drawing.Size(98, 13);
-            this.countLabel.TabIndex = 4;
-            this.countLabel.Text = "ID Топика телеграма:";
+            telegramIdTextBox.AnimateReadOnly = false;
+            telegramIdTextBox.BorderStyle = BorderStyle.None;
+            telegramIdTextBox.Depth = 0;
+            telegramIdTextBox.Font = new Font("Roboto", 16F, FontStyle.Regular, GraphicsUnit.Pixel);
+            telegramIdTextBox.Hint = "Telegram ID";
+            telegramIdTextBox.LeadingIcon = null;
+            telegramIdTextBox.Location = new Point(13, 115);
+            telegramIdTextBox.Margin = new Padding(4, 3, 4, 3);
+            telegramIdTextBox.MaxLength = 50;
+            telegramIdTextBox.MouseState = MaterialSkin.MouseState.OUT;
+            telegramIdTextBox.Multiline = false;
+            telegramIdTextBox.Name = "telegramIdTextBox";
+            telegramIdTextBox.Size = new Size(233, 50);
+            telegramIdTextBox.TabIndex = 2;
+            telegramIdTextBox.Text = "";
+            telegramIdTextBox.TrailingIcon = null;
             // 
             // countTextBox
             // 
-            this.countTextBox.Location = new System.Drawing.Point(100, 70);
-            this.countTextBox.Name = "countTextBox";
-            this.countTextBox.Size = new System.Drawing.Size(200, 20);
-            this.countTextBox.TabIndex = 5;
-            // 
-            // zarpLabel
-            // 
-            this.zarpLabel.AutoSize = true;
-            this.zarpLabel.Location = new System.Drawing.Point(10, 100);
-            this.zarpLabel.Name = "zarpLabel";
-            this.zarpLabel.Size = new System.Drawing.Size(56, 13);
-            this.zarpLabel.TabIndex = 6;
-            this.zarpLabel.Text = "Зарплата:";
+            countTextBox.AnimateReadOnly = false;
+            countTextBox.BorderStyle = BorderStyle.None;
+            countTextBox.Depth = 0;
+            countTextBox.Font = new Font("Roboto", 16F, FontStyle.Regular, GraphicsUnit.Pixel);
+            countTextBox.Hint = "ID Топика телеграма";
+            countTextBox.LeadingIcon = null;
+            countTextBox.Location = new Point(13, 171);
+            countTextBox.Margin = new Padding(4, 3, 4, 3);
+            countTextBox.MaxLength = 50;
+            countTextBox.MouseState = MaterialSkin.MouseState.OUT;
+            countTextBox.Multiline = false;
+            countTextBox.Name = "countTextBox";
+            countTextBox.Size = new Size(233, 50);
+            countTextBox.TabIndex = 3;
+            countTextBox.Text = "";
+            countTextBox.TrailingIcon = null;
             // 
             // zarpTextBox
             // 
-            this.zarpTextBox.Location = new System.Drawing.Point(100, 100);
-            this.zarpTextBox.Name = "zarpTextBox";
-            this.zarpTextBox.Size = new System.Drawing.Size(200, 20);
-            this.zarpTextBox.TabIndex = 7;
+            zarpTextBox.AnimateReadOnly = false;
+            zarpTextBox.BorderStyle = BorderStyle.None;
+            zarpTextBox.Depth = 0;
+            zarpTextBox.Font = new Font("Roboto", 16F, FontStyle.Regular, GraphicsUnit.Pixel);
+            zarpTextBox.Hint = "Зарплата";
+            zarpTextBox.LeadingIcon = null;
+            zarpTextBox.Location = new Point(13, 227);
+            zarpTextBox.Margin = new Padding(4, 3, 4, 3);
+            zarpTextBox.MaxLength = 50;
+            zarpTextBox.MouseState = MaterialSkin.MouseState.OUT;
+            zarpTextBox.Multiline = false;
+            zarpTextBox.Name = "zarpTextBox";
+            zarpTextBox.Size = new Size(233, 50);
+            zarpTextBox.TabIndex = 4;
+            zarpTextBox.Text = "";
+            zarpTextBox.TrailingIcon = null;
             // 
             // addButton
             // 
-            this.addButton.Location = new System.Drawing.Point(100, 150);
-            this.addButton.Name = "addButton";
-            this.addButton.Size = new System.Drawing.Size(75, 23);
-            this.addButton.TabIndex = 8;
-            this.addButton.Text = "Добавить";
-            this.addButton.UseVisualStyleBackColor = true;
+            addButton.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            addButton.Density = MaterialSkin.Controls.MaterialButton.MaterialButtonDensity.Default;
+            addButton.Depth = 0;
+            addButton.HighEmphasis = true;
+            addButton.Icon = null;
+            addButton.Location = new Point(13, 283);
+            addButton.Margin = new Padding(4, 3, 4, 3);
+            addButton.MinimumSize = new Size(114, 35);
+            addButton.MouseState = MaterialSkin.MouseState.HOVER;
+            addButton.Name = "addButton";
+            addButton.NoAccentTextColor = Color.Empty;
+            addButton.Size = new Size(114, 36);
+            addButton.TabIndex = 5;
+            addButton.Text = "Добавить";
+            addButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
+            addButton.UseAccentColor = false;
+            addButton.UseVisualStyleBackColor = true;
             // 
             // cancelButton
             // 
-            this.cancelButton.Location = new System.Drawing.Point(200, 150);
-            this.cancelButton.Name = "cancelButton";
-            this.cancelButton.Size = new System.Drawing.Size(75, 23);
-            this.cancelButton.TabIndex = 9;
-            this.cancelButton.Text = "Отмена";
-            this.cancelButton.UseVisualStyleBackColor = true;
+            cancelButton.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            cancelButton.Density = MaterialSkin.Controls.MaterialButton.MaterialButtonDensity.Default;
+            cancelButton.Depth = 0;
+            cancelButton.HighEmphasis = true;
+            cancelButton.Icon = null;
+            cancelButton.Location = new Point(132, 283);
+            cancelButton.Margin = new Padding(4, 3, 4, 3);
+            cancelButton.MinimumSize = new Size(114, 35);
+            cancelButton.MouseState = MaterialSkin.MouseState.HOVER;
+            cancelButton.Name = "cancelButton";
+            cancelButton.NoAccentTextColor = Color.Empty;
+            cancelButton.Size = new Size(114, 36);
+            cancelButton.TabIndex = 6;
+            cancelButton.Text = "Отмена";
+            cancelButton.Type = MaterialSkin.Controls.MaterialButton.MaterialButtonType.Contained;
+            cancelButton.UseAccentColor = false;
+            cancelButton.UseVisualStyleBackColor = true;
             // 
             // AddEmployeeForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(400, 300);
-            this.Controls.Add(this.cancelButton);
-            this.Controls.Add(this.addButton);
-            this.Controls.Add(this.zarpTextBox);
-            this.Controls.Add(this.zarpLabel);
-            this.Controls.Add(this.countTextBox);
-            this.Controls.Add(this.countLabel);
-            this.Controls.Add(this.telegramIdTextBox);
-            this.Controls.Add(this.telegramIdLabel);
-            this.Controls.Add(this.nameTextBox);
-            this.Controls.Add(this.nameLabel);
-            this.Name = "AddEmployeeForm";
-            this.Text = "Добавить сотрудника";
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(257, 400);
+            Controls.Add(cancelButton);
+            Controls.Add(addButton);
+            Controls.Add(zarpTextBox);
+            Controls.Add(countTextBox);
+            Controls.Add(telegramIdTextBox);
+            Controls.Add(nameTextBox);
+            Margin = new Padding(4, 3, 4, 3);
+            Name = "AddEmployeeForm";
+            Text = "Добавить сотрудника";
+            ResumeLayout(false);
+            PerformLayout();
         }
 
-        private System.Windows.Forms.Label nameLabel;
-        private System.Windows.Forms.TextBox nameTextBox;
-        private System.Windows.Forms.Label telegramIdLabel;
-        private System.Windows.Forms.TextBox telegramIdTextBox;
-        private System.Windows.Forms.Label countLabel;
-        private System.Windows.Forms.TextBox countTextBox;
-        private System.Windows.Forms.Label zarpLabel;
-        private System.Windows.Forms.TextBox zarpTextBox;
-        private System.Windows.Forms.Button addButton;
-        private System.Windows.Forms.Button cancelButton;
+        private MaterialSkin.Controls.MaterialTextBox nameTextBox;
+        private MaterialSkin.Controls.MaterialTextBox telegramIdTextBox;
+        private MaterialSkin.Controls.MaterialTextBox countTextBox;
+        private MaterialSkin.Controls.MaterialTextBox zarpTextBox;
+        private MaterialSkin.Controls.MaterialButton addButton;
+        private MaterialSkin.Controls.MaterialButton cancelButton;
 
         #endregion
     }

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Windows.Forms;
-
-namespace Soft
+﻿namespace Soft
 {
     public partial class LogsForm : Form
     {

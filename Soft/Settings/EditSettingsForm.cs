@@ -1,7 +1,4 @@
-﻿using MaterialSkin.Controls;
-using System;
-
-namespace Soft
+﻿namespace Soft
 {
     public partial class EditSettingsForm : Form
     {

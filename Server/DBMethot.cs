@@ -88,25 +88,31 @@ namespace Server
         }
         public async Task<bool> ArchiveUserAsync(int userId)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
-            if (user == null) return false;
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null)
+            {
+                return false;
+            }
 
-            // Добавляем сотрудника в архив
+            // Создаём объект для архивирования без явной установки Id
             var archivedUser = new ArchivedUser
             {
-                Id = user.Id,
                 Name = user.Name,
                 TelegramId = user.TelegramId,
                 Count = user.Count,
                 Zarp = user.Zarp,
-                ArchivedDate = DateTime.Now
+                ArchivedDate = DateTime.UtcNow
             };
-            _context.ArchivedUsers.Add(archivedUser);
 
-            // Удаляем сотрудника из активных пользователей
+            // Добавляем в таблицу ArchivedUsers
+            await _context.ArchivedUsers.AddAsync(archivedUser);
+
+            // Удаляем пользователя из таблицы Users
             _context.Users.Remove(user);
 
+            // Сохраняем изменения
             await _context.SaveChangesAsync();
+
             return true;
         }
 

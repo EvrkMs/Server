@@ -1,13 +1,9 @@
 using MaterialSkin.Controls;
 using Soft.Settings;
-using Soft.Users.Salary;
 using Soft.Users;
-using System;
+using Soft.Users.Salary;
 using System.Net.WebSockets;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace Soft
 {
@@ -46,29 +42,14 @@ namespace Soft
             await settingsManager.LoadTelegramSettingsAsync(); // Загружаем настройки Telegram
             UpdateSettingsBtns(SettingsManager.Add_BTN);
         }
-
-        private void UpdateSettingsBtns(bool Load)
-        {
-            if (Load)
-            {
-                addSettingsButton.Visible = true;
-                editSettingsButton.Visible = false;
-            }
-            else
-            {
-                addSettingsButton.Visible = false;
-                editSettingsButton.Visible = true;
-            }
-        }
-
+        //Методы WebSocket
         // Подключение к WebSocket серверу
-        private async Task ConnectWebSocketAsync(string uri)
+        private static async Task ConnectWebSocketAsync(string uri)
         {
             client = new ClientWebSocket();
             await client.ConnectAsync(new Uri(uri), CancellationToken.None);
             LogMessage("WebSocket подключен.");
         }
-
         // Метод для отправки сообщения через WebSocket
         public static async Task SendMessageAsync(string message)
         {
@@ -76,7 +57,6 @@ namespace Soft
             var buffer = Encoding.UTF8.GetBytes(message);
             await client.SendAsync(new ArraySegment<byte>(buffer), WebSocketMessageType.Text, true, CancellationToken.None);
         }
-
         // Метод для получения сообщения через WebSocket
         public static async Task<string> ReceiveMessageAsync()
         {
@@ -86,13 +66,11 @@ namespace Soft
             LogMessage($"Получено сообщение: {receivedMessage}");
             return receivedMessage;
         }
-
         // Метод для логирования сообщений
         private static void LogMessage(string message)
         {
             logsForm.AppendLog(message);
         }
-
         // Закрытие WebSocket соединения
         private async void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
@@ -102,7 +80,8 @@ namespace Soft
                 client.Dispose();
             }
         }
-
+        //остальные методы
+        //показать историю сотрудника
         private async void ShowSalaryHistoryButton_Click(object sender, EventArgs e)
         {
             if (employeesList.SelectedItems.Count == 0)
@@ -120,48 +99,25 @@ namespace Soft
 
             tabControl.SelectedTab = salaryTab; // Переход на вкладку с зарплатами
         }
-
-        // Редактирование настроек
-        private async void EditSettingsButton_Click(object sender, EventArgs e)
-        {
-            await settingsManager.EditTelegramSettingsAsync(); // Вызов метода из SettingsManager
-            LoadInformation();
-        }
-
-        // Добавление настроек
+        //Создания или редактирования списка сотрудников
         private async void AddSettingsButton_Click(object sender, EventArgs e)
         {
-            await settingsManager.AddTelegramSettingsAsync(); // Вызов метода из SettingsManager
+            await settingsManager.OpenSettingsFormAsync(); // Вызов метода из SettingsManager
             LoadInformation();
         }
-        public void UpdateSettingsButtonsVisibility(bool hasSettings)
+        //Обновление на кнопке настрое в зависимости от наличия данных
+        private void UpdateSettingsBtns(bool Load)
         {
-            // Если есть настройки, скрываем кнопку добавления и показываем редактирование
-            if (hasSettings)
+            if (!Load)
             {
-                addSettingsButton.Visible = false;
-                editSettingsButton.Visible = true;
-            }
-            else
-            {
-                // Если настроек нет, показываем кнопку добавления и скрываем редактирование
-                addSettingsButton.Visible = true;
-                editSettingsButton.Visible = false;
+                addSettingsButton.Text = "Редактировать";
             }
         }
-
-        // Обновление списка сотрудников
+        // Обновление инофрмации
         private void Refresh_Click(object sender, EventArgs e)
         {
             LoadInformation();
         }
-
-        // Архивирование сотрудника
-        private async void EditButton_Click(object sender, EventArgs e)
-        {
-            await userManager.EditEmployeeAsync(); // Вызов метода из UserManager для редактирования сотрудника
-        }
-
         // Открытие вкладки истории зарплат
         private async void OpenSalaryHistoryTab(object sender, EventArgs e)
         {
@@ -177,6 +133,44 @@ namespace Soft
 
             await salaryManager.LoadSalaryHistoryAsync(employeeId); // Загрузка истории зарплат
             await salaryManager.LoadCurrentSalaryAsync(employeeName); // Загрузка текущей зарплаты
+        }
+        //Добавление сотрудника
+        private async void AddButton_Click(object sender, EventArgs e)
+        {
+            await userManager.AddEmployeeAsync(); // Вызов метода для добавления сотрудника
+        }
+        // Редактирования сотруднкиа сотрудника
+        private async void EditButton_Click(object sender, EventArgs e)
+        {
+            await userManager.EditEmployeeAsync(); // Вызов метода из UserManager для редактирования сотрудника
+        }
+        //Архивация сотрудника
+        private async void ArchiveButton_Click(object sender, EventArgs e)
+        {
+            if (employeesList.SelectedItems.Count == 0)
+            {
+                MessageBox.Show("Выберите сотрудника для архивирования.");
+                return;
+            }
+
+            var selectedEmployee = employeesList.SelectedItems[0];
+            string employeeName = selectedEmployee.SubItems[1].Text; // Имя сотрудника
+
+            // Вызов диалогового окна с подтверждением
+            DialogResult result = MessageBox.Show($"Вы уверены, что хотите архивировать сотрудника {employeeName}?",
+                                                  "Подтверждение архивирования",
+                                                  MessageBoxButtons.YesNo,
+                                                  MessageBoxIcon.Warning);
+
+            if (result == DialogResult.Yes)
+            {
+                await userManager.ArchiveEmployeeAsync(); // Выполняем архивирование только при подтверждении
+            }
+            else
+            {
+                MessageBox.Show("Архивирование отменено.");
+            }
+            LoadInformation();
         }
     }
 }

@@ -52,7 +52,6 @@ namespace Soft
             columnChatId = new ColumnHeader();
             columnPassword = new ColumnHeader();
             addSettingsButton = new MaterialButton();
-            editSettingsButton = new MaterialButton();
             Refresh = new MaterialButton();
             tabSelector = new MaterialTabSelector();
             columnHeader1 = new ColumnHeader();
@@ -181,6 +180,7 @@ namespace Soft
             addButton.Text = "Добавить сотрудника";
             addButton.Type = MaterialButton.MaterialButtonType.Contained;
             addButton.UseAccentColor = false;
+            addButton.Click += AddButton_Click;
             // 
             // archiveButton
             // 
@@ -200,6 +200,7 @@ namespace Soft
             archiveButton.Text = "Архивировать";
             archiveButton.Type = MaterialButton.MaterialButtonType.Contained;
             archiveButton.UseAccentColor = false;
+            archiveButton.Click += ArchiveButton_Click;
             // 
             // showSalaryHistoryButton
             // 
@@ -316,7 +317,6 @@ namespace Soft
             telegramTab.Controls.Add(tradListView);
             telegramTab.Controls.Add(chatListView);
             telegramTab.Controls.Add(addSettingsButton);
-            telegramTab.Controls.Add(editSettingsButton);
             telegramTab.Location = new Point(4, 24);
             telegramTab.Name = "telegramTab";
             telegramTab.Size = new Size(932, 546);
@@ -333,7 +333,7 @@ namespace Soft
             tradListView.Depth = 0;
             tradListView.Dock = DockStyle.Bottom;
             tradListView.FullRowSelect = true;
-            tradListView.Location = new Point(0, 231);
+            tradListView.Location = new Point(0, 267);
             tradListView.MinimumSize = new Size(200, 100);
             tradListView.MouseLocation = new Point(-1, -1);
             tradListView.MouseState = MouseState.OUT;
@@ -412,7 +412,7 @@ namespace Soft
             addSettingsButton.Dock = DockStyle.Bottom;
             addSettingsButton.HighEmphasis = true;
             addSettingsButton.Icon = null;
-            addSettingsButton.Location = new Point(0, 474);
+            addSettingsButton.Location = new Point(0, 510);
             addSettingsButton.Margin = new Padding(4, 6, 4, 6);
             addSettingsButton.MouseState = MouseState.HOVER;
             addSettingsButton.Name = "addSettingsButton";
@@ -424,27 +424,6 @@ namespace Soft
             addSettingsButton.UseAccentColor = false;
             addSettingsButton.UseVisualStyleBackColor = true;
             addSettingsButton.Click += AddSettingsButton_Click;
-            // 
-            // editSettingsButton
-            // 
-            editSettingsButton.AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            editSettingsButton.Density = MaterialButton.MaterialButtonDensity.Default;
-            editSettingsButton.Depth = 0;
-            editSettingsButton.Dock = DockStyle.Bottom;
-            editSettingsButton.HighEmphasis = true;
-            editSettingsButton.Icon = null;
-            editSettingsButton.Location = new Point(0, 510);
-            editSettingsButton.Margin = new Padding(4, 6, 4, 6);
-            editSettingsButton.MouseState = MouseState.HOVER;
-            editSettingsButton.Name = "editSettingsButton";
-            editSettingsButton.NoAccentTextColor = Color.Empty;
-            editSettingsButton.Size = new Size(932, 36);
-            editSettingsButton.TabIndex = 2;
-            editSettingsButton.Text = "Редактировать";
-            editSettingsButton.Type = MaterialButton.MaterialButtonType.Contained;
-            editSettingsButton.UseAccentColor = false;
-            editSettingsButton.UseVisualStyleBackColor = true;
-            editSettingsButton.Click += EditSettingsButton_Click;
             // 
             // Refresh
             // 
@@ -543,7 +522,6 @@ namespace Soft
         private ColumnHeader columnHeader5;
         private ColumnHeader columnHeader6;
         private ColumnHeader columnHeader7;
-        private MaterialButton editSettingsButton;
         private ColumnHeader columnPassword;
         private MaterialButton addSettingsButton;
     }

@@ -76,7 +76,7 @@ namespace Soft
             this.saveButton.Text = "Сохранить изменения";
             this.saveButton.Type = MaterialButton.MaterialButtonType.Contained;
             this.saveButton.UseAccentColor = false;
-            this.saveButton.Click += new System.EventHandler(this.saveButton_Click);
+            this.saveButton.Click += new System.EventHandler(this.SaveButton_Click);
 
             // 
             // EditEmployeeForm

@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-using MaterialSkin.Controls;
-using System.Windows.Forms;
+﻿using MaterialSkin.Controls;
 using System.Text;
 
 namespace Soft.Settings
@@ -9,7 +7,7 @@ namespace Soft.Settings
     {
         private MaterialListView chatListView;
         private MaterialListView tradListView;
-        public static bool Add_BTN {  get; private set; }
+        public static bool Add_BTN { get; private set; }
 
         public SettingsManager(MaterialListView chatListView, MaterialListView tradListView)
         {
@@ -53,38 +51,30 @@ namespace Soft.Settings
             }
         }
 
-        public async Task EditTelegramSettingsAsync()
+        public async Task OpenSettingsFormAsync()
         {
-            if (chatListView.Items.Count > 0 && tradListView.Items.Count > 0)
+            TelegramSettings settings = null;
+
+            if (!Add_BTN && chatListView.Items.Count > 0 && tradListView.Items.Count > 0)
             {
+                // Если уже есть данные, загружаем их для редактирования
                 var selectedChatItem = chatListView.Items[0];
                 var selectedTradItem = tradListView.Items[0];
 
-                var settings = new TelegramSettings
+                settings = new TelegramSettings
                 {
                     TokenBot = selectedChatItem.SubItems[0].Text,
-                    ForwardChat = long.Parse(selectedChatItem.SubItems[1].Text),  // Преобразование строки в long
-                    ChatId = long.Parse(selectedChatItem.SubItems[2].Text),  // Преобразование строки в long
+                    ForwardChat = long.Parse(selectedChatItem.SubItems[1].Text),
+                    ChatId = long.Parse(selectedChatItem.SubItems[2].Text),
                     Password = selectedChatItem.SubItems[3].Text,
-                    TraidSmena = int.Parse(selectedTradItem.SubItems[0].Text),  // Преобразование строки в int
-                    TreidShtraph = int.Parse(selectedTradItem.SubItems[1].Text),  // Преобразование строки в int
-                    TraidRashod = (int)decimal.Parse(selectedTradItem.SubItems[2].Text),  // Преобразование decimal в int
-                    TraidPostavka = int.Parse(selectedTradItem.SubItems[3].Text)  // Преобразование строки в int
+                    TraidSmena = int.Parse(selectedTradItem.SubItems[0].Text),
+                    TreidShtraph = int.Parse(selectedTradItem.SubItems[1].Text),
+                    TraidRashod = int.Parse(selectedTradItem.SubItems[2].Text),
+                    TraidPostavka = int.Parse(selectedTradItem.SubItems[3].Text)
                 };
-
-                var editForm = new EditSettingsForm(settings);
-                var result = editForm.ShowDialog();
-
-                if (result == DialogResult.OK)
-                {
-                    await UpdateTelegramSettingsAsync(editForm);
-                }
             }
-        }
 
-        public async Task AddTelegramSettingsAsync()
-        {
-            var editForm = new EditSettingsForm();
+            var editForm = new EditSettingsForm(settings);
             var result = editForm.ShowDialog();
 
             if (result == DialogResult.OK)
@@ -143,6 +133,7 @@ namespace Soft.Settings
             }
         }
     }
+
     public class TelegramSettings
     {
         public int Id { get; set; }
@@ -151,7 +142,7 @@ namespace Soft.Settings
         public long ChatId { get; set; }
         public int TraidSmena { get; set; }
         public int TreidShtraph { get; set; }
-        public int TraidRashod { get; set; }  // Было decimal, заменено на int
+        public int TraidRashod { get; set; }
         public int TraidPostavka { get; set; }
         public string Password { get; set; }
     }
