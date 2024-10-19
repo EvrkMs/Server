@@ -61,6 +61,7 @@ namespace Soft
             columnHeader5 = new ColumnHeader();
             columnHeader6 = new ColumnHeader();
             columnHeader7 = new ColumnHeader();
+            progressBar = new MaterialProgressBar();
             tabControl.SuspendLayout();
             employeesTab.SuspendLayout();
             salaryTab.SuspendLayout();
@@ -428,22 +429,26 @@ namespace Soft
             // Refresh
             // 
             Refresh.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            Refresh.AutoSize = false;
             Refresh.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            Refresh.CausesValidation = false;
             Refresh.Density = MaterialButton.MaterialButtonDensity.Default;
             Refresh.Depth = 0;
+            Refresh.DrawShadows = false;
             Refresh.HighEmphasis = true;
             Refresh.Icon = null;
-            Refresh.Location = new Point(843, 25);
+            Refresh.Location = new Point(848, 25);
             Refresh.Margin = new Padding(4, 6, 4, 6);
             Refresh.MouseState = MouseState.HOVER;
             Refresh.Name = "Refresh";
             Refresh.NoAccentTextColor = Color.Empty;
-            Refresh.Size = new Size(100, 36);
+            Refresh.Size = new Size(98, 39);
             Refresh.TabIndex = 0;
             Refresh.Text = "Обновить";
-            Refresh.Type = MaterialButton.MaterialButtonType.Contained;
-            Refresh.UseAccentColor = false;
-            Refresh.UseVisualStyleBackColor = false;
+            Refresh.Type = MaterialButton.MaterialButtonType.Text;
+            Refresh.UseAccentColor = true;
+            Refresh.UseMnemonic = false;
+            Refresh.UseVisualStyleBackColor = true;
             Refresh.Click += Refresh_Click;
             // 
             // tabSelector
@@ -460,11 +465,23 @@ namespace Soft
             tabSelector.TabIndex = 2;
             tabSelector.Text = "materialTabSelector1";
             // 
+            // progressBar
+            // 
+            progressBar.Depth = 0;
+            progressBar.Dock = DockStyle.Top;
+            progressBar.ForeColor = Color.LightCoral;
+            progressBar.Location = new Point(3, 64);
+            progressBar.MouseState = MouseState.HOVER;
+            progressBar.Name = "progressBar";
+            progressBar.Size = new Size(940, 5);
+            progressBar.TabIndex = 3;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(946, 689);
+            Controls.Add(progressBar);
             Controls.Add(Refresh);
             Controls.Add(tabControl);
             Controls.Add(tabSelector);
@@ -479,7 +496,6 @@ namespace Soft
             telegramTab.ResumeLayout(false);
             telegramTab.PerformLayout();
             ResumeLayout(false);
-            PerformLayout();
         }
 
         #endregion
@@ -524,5 +540,6 @@ namespace Soft
         private ColumnHeader columnHeader7;
         private ColumnHeader columnPassword;
         private MaterialButton addSettingsButton;
+        private MaterialProgressBar progressBar;
     }
 }

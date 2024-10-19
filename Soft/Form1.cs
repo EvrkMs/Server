@@ -21,6 +21,7 @@ namespace Soft
             InitializeManagers();
             logsForm = new LogsForm(); // Инициализируем форму логов
             logsForm.Show(); // Показываем форму логов
+            BlockUI(true);
             _ = ConnectAndInitializeAsync(); // Подключаемся к веб-сокету
         }
         private void InitializeManagers()
@@ -29,18 +30,23 @@ namespace Soft
             salaryManager = new SalaryManager(salaryListView, currentSalaryLabel);
             settingsManager = new SettingsManager(chatListView, tradListView);
         }
-
         // Метод для подключения к веб-сокету
         private async Task ConnectAndInitializeAsync()
         {
+            progressBar.Value = 10;
             await ConnectWebSocketAsync("ws://localhost:5000"); // Подключаемся к веб-сокету
+            progressBar.Value = 20;
             LoadInformation();
+            BlockUI(false);
         }
         private async void LoadInformation()
         {
             await userManager.LoadUsersAsync(); // Загружаем список сотрудников
+            progressBar.Value = 40;
             await settingsManager.LoadTelegramSettingsAsync(); // Загружаем настройки Telegram
+            progressBar.Value = 60;
             UpdateSettingsBtns(SettingsManager.Add_BTN);
+            progressBar.Value = 100;
         }
         //Методы WebSocket
         // Подключение к WebSocket серверу
@@ -70,15 +76,6 @@ namespace Soft
         private static void LogMessage(string message)
         {
             logsForm.AppendLog(message);
-        }
-        // Закрытие WebSocket соединения
-        private async void Form1_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            if (client != null && client.State == WebSocketState.Open)
-            {
-                await client.CloseAsync(WebSocketCloseStatus.NormalClosure, "Закрытие соединения", CancellationToken.None);
-                client.Dispose();
-            }
         }
         //остальные методы
         //показать историю сотрудника
@@ -171,6 +168,24 @@ namespace Soft
                 MessageBox.Show("Архивирование отменено.");
             }
             LoadInformation();
+        }
+        // Закрытие WebSocket соединения
+        private async void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            if (client != null && client.State == WebSocketState.Open)
+            {
+                await client.CloseAsync(WebSocketCloseStatus.NormalClosure, "Закрытие соединения", CancellationToken.None);
+                client.Dispose();
+            }
+        }
+        // Метод блокировки элементов управления
+        private void BlockUI(bool block)
+        {
+            foreach (Control control in Controls)
+            {
+                control.Enabled = !block;  // Блокируем все элементы управления, кроме прогресс-бара
+            }
+            progressBar.Enabled = true; // Прогресс-бар всегда активен
         }
     }
 }
