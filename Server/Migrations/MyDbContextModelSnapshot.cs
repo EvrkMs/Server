@@ -37,14 +37,13 @@ namespace Server.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<long>("TelegramId")
                         .HasColumnType("bigint");
 
-                    b.Property<decimal>("Zarp")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<int>("Zarp")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -59,8 +58,8 @@ namespace Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<decimal>("TotalAmount")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<int>("TotalAmount")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -75,8 +74,8 @@ namespace Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<decimal>("ChangeAmount")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<int>("ChangeAmount")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("ChangeDate")
                         .HasColumnType("datetime2");
@@ -84,6 +83,25 @@ namespace Server.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("SafeChanges");
+                });
+
+            modelBuilder.Entity("Server.SafeChangeHistory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ChangeAmount")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("ChangeDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SafeChangeHistory");
                 });
 
             modelBuilder.Entity("Server.Salary", b =>
@@ -97,10 +115,10 @@ namespace Server.Migrations
                     b.Property<bool?>("IsArchived")
                         .HasColumnType("bit");
 
-                    b.Property<decimal>("TotalSalary")
+                    b.Property<int>("TotalSalary")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("decimal(18,2)")
-                        .HasDefaultValue(0m);
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -121,8 +139,8 @@ namespace Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<decimal>("ChangeAmount")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<int>("ChangeAmount")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("ChangeDate")
                         .HasColumnType("datetime2");
@@ -148,8 +166,8 @@ namespace Server.Migrations
                     b.Property<DateTime>("FinalizedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<decimal>("TotalSalary")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<int>("TotalSalary")
+                        .HasColumnType("int");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -176,24 +194,16 @@ namespace Server.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("Password")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<long>("PhotoChat")
-                        .HasColumnType("bigint");
 
                     b.Property<string>("TokenBot")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("TraidPhoto")
-                        .HasColumnType("int");
 
                     b.Property<int>("TraidPostavka")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("TraidRashod")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<int>("TraidRashod")
+                        .HasColumnType("int");
 
                     b.Property<int>("TraidSmena")
                         .HasColumnType("int");
@@ -218,14 +228,13 @@ namespace Server.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<long>("TelegramId")
                         .HasColumnType("bigint");
 
-                    b.Property<decimal>("Zarp")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<int>("Zarp")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

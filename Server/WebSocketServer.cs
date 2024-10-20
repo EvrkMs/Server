@@ -57,6 +57,12 @@ namespace Server
                         case "GetSeyf":
                             await Seyf.GetHandler.HandleGetSeyfMessage(context.RequestServices, webSocket, result);
                             break;
+                        case "GetSeyfChangsHistory":
+                            await Seyf.GetHandler.HandlerGetSafeChangeMessage(context.RequestServices, webSocket, result);
+                            break;
+                        case "FinalizeSafe":
+                            await Seyf.GetHandler.HandleFinalizeSafe(context.RequestServices, webSocket, result);
+                            break;
                         default:
                             await SendErrorMessage(webSocket, result, "Не существует такой команды");
                             break;

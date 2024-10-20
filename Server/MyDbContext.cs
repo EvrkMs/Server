@@ -4,13 +4,14 @@ namespace Server
     public class MyDbContext(DbContextOptions<MyDbContext> options) : DbContext(options)
     {
         public DbSet<User> Users { get; set; }
+        public DbSet<ArchivedUser> ArchivedUsers { get; set; }
         public DbSet<TelegramSettings> TelegramSettings { get; set; }
         public DbSet<Salary> Salaries { get; set; }
         public DbSet<SalaryChange> SalaryChanges { get; set; }
+        public DbSet<SalaryHistory> SalaryHistory { get; set; }
         public DbSet<Safe> Safe { get; set; }
         public DbSet<SafeChange> SafeChanges { get; set; }
-        public DbSet<SalaryHistory> SalaryHistory { get; set; }
-        public DbSet<ArchivedUser> ArchivedUsers { get; set; }
+        public DbSet<SafeChangeHistory> SafeChangeHistory {  get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -98,7 +99,7 @@ namespace Server
     {
         public int Id { get; set; }
         public int UserId { get; set; }
-        public decimal TotalSalary { get; set; }
+        public int TotalSalary { get; set; }
         public bool? IsArchived { get; set; } = false;  // Новый флаг для архивирования
         public User? User { get; set; }
 
@@ -110,7 +111,7 @@ namespace Server
     {
         public int Id { get; set; }
         public int SalaryId { get; set; }
-        public decimal ChangeAmount { get; set; }
+        public int ChangeAmount { get; set; }
         public DateTime ChangeDate { get; set; }
 
         public Salary? Salary { get; set; }
@@ -120,22 +121,28 @@ namespace Server
     public class Safe
     {
         public int Id { get; set; }
-        public decimal TotalAmount { get; set; }
+        public int TotalAmount { get; set; }
     }
 
     // Модель для таблицы SafeChanges
     public class SafeChange
     {
         public int Id { get; set; }
-        public decimal ChangeAmount { get; set; }
+        public int ChangeAmount { get; set; }
         public DateTime ChangeDate { get; set; }
+    }
+    public class SafeChangeHistory
+    {
+        public int Id { get; set; }
+        public DateTime ChangeDate { get; set; }
+        public int ChangeAmount { get; set; }
     }
     // Новая модель для истории зарплат
     public class SalaryHistory
     {
         public int Id { get; set; }
         public int UserId { get; set; }
-        public decimal TotalSalary { get; set; }
+        public int TotalSalary { get; set; }
         public DateTime FinalizedDate { get; set; }
 
         // Связь с пользователем

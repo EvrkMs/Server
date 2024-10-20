@@ -1,4 +1,5 @@
 using MaterialSkin.Controls;
+using Soft.Safe;
 using Soft.Settings;
 using Soft.Users;
 using Soft.Users.Salary;
@@ -14,6 +15,7 @@ namespace Soft
         private UserManager userManager;
         private SalaryManager salaryManager;
         private SettingsManager settingsManager;
+        private SafeManager safeManager;
 
         public Form1()
         {
@@ -29,6 +31,7 @@ namespace Soft
             userManager = new UserManager(employeesList);
             salaryManager = new SalaryManager(salaryListView, currentSalaryLabel);
             settingsManager = new SettingsManager(chatListView, tradListView);
+            safeManager = new SafeManager(safeListView, currentSafeLabel);
         }
         // Метод для подключения к веб-сокету
         private async Task ConnectAndInitializeAsync()
@@ -45,7 +48,11 @@ namespace Soft
             progressBar.Value = 40;
             await settingsManager.LoadTelegramSettingsAsync(); // Загружаем настройки Telegram
             progressBar.Value = 60;
+            await safeManager.LoadSafeChangesHistoryAsync();
+            await safeManager.LoadSafeAsync();
+            progressBar.Value = 80;
             UpdateSettingsBtns(SettingsManager.Add_BTN);
+            UpdateSafeBtns(SafeManager.TrueHistory);
             progressBar.Value = 100;
         }
         //Методы WebSocket
@@ -108,6 +115,13 @@ namespace Soft
             if (!Load)
             {
                 addSettingsButton.Text = "Редактировать";
+            }
+        }
+        private void UpdateSafeBtns(bool Load)
+        {
+            if (Load)
+            {
+                finalezButton.Visible = false;
             }
         }
         // Обновление инофрмации
@@ -186,6 +200,17 @@ namespace Soft
                 control.Enabled = !block;  // Блокируем все элементы управления, кроме прогресс-бара
             }
             progressBar.Enabled = true; // Прогресс-бар всегда активен
+        }
+        //Сокращение истории сейфа
+        private async void FinalezButton_Click(object sender, EventArgs e)
+        {
+            await safeManager.FinalizeSafeOverWebSocketAsync();
+            LoadInformation();
+        }
+        //Добавление записи в сейф
+        private async void AddSafe_Click(object sender, EventArgs e)
+        {
+            await safeManager.PostSafe();
         }
     }
 }

@@ -9,7 +9,6 @@ namespace Server
     public class DBMethod(MyDbContext context)
     {
         private readonly MyDbContext _context = context;
-
         // Общий метод для обработки ошибок
         private static async Task<bool> SafeExecuteAsync(Func<Task> action)
         {
@@ -24,7 +23,6 @@ namespace Server
                 return false;
             }
         }
-
         // Общий метод для добавления или обновления сотрудника
         private async Task AddOrUpdateUserAsync(User user)
         {
@@ -34,7 +32,6 @@ namespace Server
             }
             await _context.SaveChangesAsync();
         }
-
         // Метод для добавления сотрудника
         public async Task<bool> AddUserAsync(string name, long telegramId, int count, int zarp)
         {
@@ -47,7 +44,6 @@ namespace Server
             };
             return await SafeExecuteAsync(() => AddOrUpdateUserAsync(newUser));
         }
-
         // Метод для редактирования сотрудника
         public async Task<bool> UpdateUserAsync(string name, long? telegramId, int? count, int? zarp)
         {
@@ -61,7 +57,6 @@ namespace Server
 
             return await SafeExecuteAsync(() => AddOrUpdateUserAsync(user));
         }
-
         // Метод для архивации сотрудника
         public async Task<bool> ArchiveUserAsync(int userId)
         {
@@ -84,7 +79,6 @@ namespace Server
                 await _context.SaveChangesAsync();
             });
         }
-
         // Метод для получения зарплаты сотрудника по имени
         public async Task<Salary?> GetSalaryByNameAsync(string name)
         {
@@ -93,15 +87,13 @@ namespace Server
 
             return await _context.Salaries.FirstOrDefaultAsync(s => s.UserId == user.Id);
         }
-
         // Метод для получения истории зарплат по ID сотрудника
         public async Task<List<SalaryHistory>> GetSalaryHistoryByEmployeeIdAsync(int employeeId)
         {
             return await _context.SalaryHistory.Where(s => s.UserId == employeeId).ToListAsync();
         }
-
         // Метод для обновления зарплаты сотрудника
-        public async Task<bool> UpdateSalaryAsync(string name, decimal zpChange)
+        public async Task<bool> UpdateSalaryAsync(string name, int zpChange)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Name == name);
             if (user == null) return false;
@@ -125,7 +117,6 @@ namespace Server
                 await _context.SaveChangesAsync();
             });
         }
-
         // Пересчёт зарплат и добавление их в историю
         public async Task FinalizeSalariesAsync()
         {
@@ -147,16 +138,14 @@ namespace Server
                 await _context.SaveChangesAsync();
             });
         }
-
         // Метод для получения текущей суммы в сейфе
-        public async Task<decimal?> GetSafeAmountAsync()
+        public async Task<int?> GetSafeAmountAsync()
         {
             var safe = await _context.Safe.FirstOrDefaultAsync();
             return safe?.TotalAmount;
         }
-
         // Метод для обновления суммы в сейфе
-        public async Task<bool> UpdateSafeAmountAsync(decimal amountChange)
+        public async Task<bool> UpdateSafeAmountAsync(int amountChange)
         {
             var safe = await _context.Safe.FirstOrDefaultAsync()
                        ?? new Safe { TotalAmount = 0 };
@@ -176,7 +165,6 @@ namespace Server
                 await _context.SaveChangesAsync();
             });
         }
-
         // Метод для обновления настроек Telegram
         public async Task<bool> UpdateTelegramSettingsAsync(TelegramSettings settings)
         {
@@ -198,6 +186,51 @@ namespace Server
             existingSettings.Password = settings.Password;
 
             return await SafeExecuteAsync(() => _context.SaveChangesAsync());
+        }
+        public async Task FinalizeSafeChangesAsync()
+        {
+            try
+            {
+                // Получаем текущую сумму сейфа
+                var currentSafe = await _context.Safe.FirstOrDefaultAsync() ?? throw new Exception("Текущая сумма сейфа не найдена.");
+
+                // Получаем все изменения в сейфе
+                var safeChanges = await _context.SafeChanges.ToListAsync();
+                if (safeChanges.Count == 0)
+                {
+                    throw new Exception("Изменений в сейфе не найдено.");
+                }
+
+                // Копируем изменения в таблицу SafeChangeHistory
+                foreach (var change in safeChanges)
+                {
+                    var historyEntry = new SafeChangeHistory
+                    {
+                        ChangeAmount = change.ChangeAmount,
+                        ChangeDate = change.ChangeDate
+                    };
+                    _context.SafeChangeHistory.Add(historyEntry);
+                }
+
+                // Очищаем таблицу SafeChanges
+                _context.SafeChanges.RemoveRange(safeChanges);
+
+                // Добавляем актуальную запись о сейфе обратно в SafeChange
+                var currentSafeChange = new SafeChange
+                {
+                    ChangeAmount = currentSafe.TotalAmount,
+                    ChangeDate = DateTime.Now
+                };
+                _context.SafeChanges.Add(currentSafeChange);
+
+                // Сохраняем изменения в базе данных
+                await _context.SaveChangesAsync();
+                Console.WriteLine("Изменения сейфа успешно финализированы.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка при финализации изменений сейфа: {ex.Message}");
+            }
         }
     }
 }

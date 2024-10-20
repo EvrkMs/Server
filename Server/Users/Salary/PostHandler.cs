@@ -15,7 +15,7 @@ namespace Server.Users.Salary
             }
 
             var name = parts[1];
-            if (!decimal.TryParse(parts[2], out var zpChange))
+            if (!int.TryParse(parts[2], out var zpChange))
             {
                 await HandlerUtils.SendErrorMessage(webSocket, result, "Некорректное значение зарплаты.");
                 return;

@@ -13,7 +13,7 @@ namespace Server.Seyf
                 return;
             }
 
-            if (!decimal.TryParse(parts[1], out var amountChange))
+            if (!int.TryParse(parts[1], out var amountChange))
             {
                 await HandlerUtils.SendErrorMessage(webSocket, result, "Некорректное значение для сейфа.");
                 return;

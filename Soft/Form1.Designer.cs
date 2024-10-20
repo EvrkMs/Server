@@ -54,11 +54,14 @@ namespace Soft
             columnPassword = new ColumnHeader();
             addSettingsButton = new MaterialButton();
             safeTab = new TabPage();
+            currentSafeLabel = new Label();
             safeListView = new MaterialListView();
             columnSafeId = new ColumnHeader();
             columnData = new ColumnHeader();
             columnSum = new ColumnHeader();
+            finalezButton = new MaterialButton();
             progressBar = new MaterialProgressBar();
+            addSafe = new MaterialButton();
             tabControl.SuspendLayout();
             employeesTab.SuspendLayout();
             salaryTab.SuspendLayout();
@@ -466,13 +469,26 @@ namespace Soft
             // 
             // safeTab
             // 
+            safeTab.Controls.Add(addSafe);
+            safeTab.Controls.Add(currentSafeLabel);
             safeTab.Controls.Add(safeListView);
+            safeTab.Controls.Add(finalezButton);
             safeTab.Location = new Point(4, 24);
             safeTab.Name = "safeTab";
             safeTab.Size = new Size(932, 546);
             safeTab.TabIndex = 3;
             safeTab.Text = "Сейф";
             safeTab.UseVisualStyleBackColor = true;
+            // 
+            // currentSafeLabel
+            // 
+            currentSafeLabel.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            currentSafeLabel.Location = new Point(668, 0);
+            currentSafeLabel.Name = "currentSafeLabel";
+            currentSafeLabel.Size = new Size(261, 23);
+            currentSafeLabel.TabIndex = 5;
+            currentSafeLabel.Text = "Актуальная сейф: ";
+            currentSafeLabel.TextAlign = ContentAlignment.MiddleLeft;
             // 
             // safeListView
             // 
@@ -489,7 +505,7 @@ namespace Soft
             safeListView.MouseState = MouseState.OUT;
             safeListView.Name = "safeListView";
             safeListView.OwnerDraw = true;
-            safeListView.Size = new Size(932, 546);
+            safeListView.Size = new Size(932, 510);
             safeListView.TabIndex = 0;
             safeListView.UseCompatibleStateImageBehavior = false;
             safeListView.View = View.Details;
@@ -509,6 +525,27 @@ namespace Soft
             columnSum.Text = "Суммы";
             columnSum.Width = 200;
             // 
+            // finalezButton
+            // 
+            finalezButton.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            finalezButton.Density = MaterialButton.MaterialButtonDensity.Default;
+            finalezButton.Depth = 0;
+            finalezButton.Dock = DockStyle.Bottom;
+            finalezButton.HighEmphasis = true;
+            finalezButton.Icon = null;
+            finalezButton.Location = new Point(0, 510);
+            finalezButton.Margin = new Padding(4, 6, 4, 6);
+            finalezButton.MouseState = MouseState.HOVER;
+            finalezButton.Name = "finalezButton";
+            finalezButton.NoAccentTextColor = Color.Empty;
+            finalezButton.Size = new Size(932, 36);
+            finalezButton.TabIndex = 4;
+            finalezButton.Text = "Сократить историю";
+            finalezButton.Type = MaterialButton.MaterialButtonType.Contained;
+            finalezButton.UseAccentColor = false;
+            finalezButton.UseVisualStyleBackColor = true;
+            finalezButton.Click += FinalezButton_Click;
+            // 
             // progressBar
             // 
             progressBar.Depth = 0;
@@ -519,6 +556,27 @@ namespace Soft
             progressBar.Name = "progressBar";
             progressBar.Size = new Size(940, 5);
             progressBar.TabIndex = 3;
+            // 
+            // addSafe
+            // 
+            addSafe.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            addSafe.Density = MaterialButton.MaterialButtonDensity.Default;
+            addSafe.Depth = 0;
+            addSafe.Dock = DockStyle.Bottom;
+            addSafe.HighEmphasis = true;
+            addSafe.Icon = null;
+            addSafe.Location = new Point(0, 474);
+            addSafe.Margin = new Padding(4, 6, 4, 6);
+            addSafe.MouseState = MouseState.HOVER;
+            addSafe.Name = "addSafe";
+            addSafe.NoAccentTextColor = Color.Empty;
+            addSafe.Size = new Size(932, 36);
+            addSafe.TabIndex = 6;
+            addSafe.Text = "Добавить запись";
+            addSafe.Type = MaterialButton.MaterialButtonType.Contained;
+            addSafe.UseAccentColor = false;
+            addSafe.UseVisualStyleBackColor = true;
+            addSafe.Click += AddSafe_Click;
             // 
             // Form1
             // 
@@ -540,6 +598,7 @@ namespace Soft
             telegramTab.ResumeLayout(false);
             telegramTab.PerformLayout();
             safeTab.ResumeLayout(false);
+            safeTab.PerformLayout();
             ResumeLayout(false);
         }
 
@@ -583,5 +642,8 @@ namespace Soft
         private ColumnHeader columnSafeId;
         private ColumnHeader columnData;
         private ColumnHeader columnSum;
+        private MaterialButton finalezButton;
+        private Label currentSafeLabel;
+        private MaterialButton addSafe;
     }
 }

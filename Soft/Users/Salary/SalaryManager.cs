@@ -2,16 +2,10 @@
 
 namespace Soft.Users.Salary
 {
-    public class SalaryManager
+    public class SalaryManager(MaterialListView salaryListView, Label currentSalaryLabel)
     {
-        private readonly MaterialListView salaryListView;
-        private readonly Label currentSalaryLabel;
-
-        public SalaryManager(MaterialListView salaryListView, Label currentSalaryLabel)
-        {
-            this.salaryListView = salaryListView;
-            this.currentSalaryLabel = currentSalaryLabel;
-        }
+        private readonly MaterialListView salaryListView = salaryListView;
+        private readonly Label currentSalaryLabel = currentSalaryLabel;
 
         // Метод для получения истории зарплат
         public async Task LoadSalaryHistoryAsync(int employeeId)

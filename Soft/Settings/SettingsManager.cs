@@ -3,17 +3,9 @@ using System.Text;
 
 namespace Soft.Settings
 {
-    public class SettingsManager
+    public class SettingsManager(MaterialListView chatListView, MaterialListView tradListView)
     {
-        private MaterialListView chatListView;
-        private MaterialListView tradListView;
         public static bool Add_BTN { get; private set; }
-
-        public SettingsManager(MaterialListView chatListView, MaterialListView tradListView)
-        {
-            this.chatListView = chatListView;
-            this.tradListView = tradListView;
-        }
 
         public async Task LoadTelegramSettingsAsync()
         {
@@ -72,18 +64,27 @@ namespace Soft.Settings
                     TraidRashod = int.Parse(selectedTradItem.SubItems[2].Text),
                     TraidPostavka = int.Parse(selectedTradItem.SubItems[3].Text)
                 };
+                var editFormSettings = new EditSettingsForm(settings);
+                var resultSettings = editFormSettings.ShowDialog();
+
+                if (resultSettings == DialogResult.OK)
+                {
+                    await UpdateTelegramSettingsAsync(editFormSettings);
+                }
             }
-
-            var editForm = new EditSettingsForm(settings);
-            var result = editForm.ShowDialog();
-
-            if (result == DialogResult.OK)
+            else
             {
-                await UpdateTelegramSettingsAsync(editForm);
+                var editForm = new EditSettingsForm();
+                var result = editForm.ShowDialog();
+
+                if(result == DialogResult.OK)
+                {
+                    await UpdateTelegramSettingsAsync(editForm);
+                }
             }
         }
 
-        private async Task UpdateTelegramSettingsAsync(EditSettingsForm editForm)
+        private static async Task UpdateTelegramSettingsAsync(EditSettingsForm editForm)
         {
             var message = new StringBuilder("PostNewSettings");
 

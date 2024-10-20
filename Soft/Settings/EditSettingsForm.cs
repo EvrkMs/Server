@@ -23,7 +23,7 @@
 
             // Показать все текстбоксы для редактирования
             ShowAllTextboxes();
-
+            
             // Устанавливаем значения в текстбоксы
             tokenTextBox.Text = settings.TokenBot;
             forwardChatTextBox.Text = settings.ForwardChat.ToString();
