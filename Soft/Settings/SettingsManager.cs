@@ -77,7 +77,7 @@ namespace Soft.Settings
                 var editForm = new EditSettingsForm();
                 var result = editForm.ShowDialog();
 
-                if(result == DialogResult.OK)
+                if (result == DialogResult.OK)
                 {
                     await UpdateTelegramSettingsAsync(editForm);
                 }

@@ -21,10 +21,30 @@ namespace Soft
         {
             InitializeComponent();
             InitializeManagers();
-            logsForm = new LogsForm(); // Инициализируем форму логов
+
+            logsForm = new LogsForm
+            {
+                StartPosition = FormStartPosition.Manual, // Устанавливаем ручную позицию
+                Location = new Point(this.Location.X + this.Width + 10, this.Location.Y) // Располагаем LogsForm справа от Form1
+            }; // Инициализируем форму логов
             logsForm.Show(); // Показываем форму логов
+
+            // Привязываем события перемещения и изменения размера основного окна
+            this.LocationChanged += Form1_LocationChanged;
+            this.SizeChanged += Form1_SizeChanged;
+
             BlockUI(true);
             _ = ConnectAndInitializeAsync(); // Подключаемся к веб-сокету
+        }
+        private void Form1_LocationChanged(object sender, EventArgs e)
+        {
+            // При перемещении Form1 перемещаем и LogsForm
+            logsForm.Location = new Point(this.Location.X + this.Width + 10, this.Location.Y);
+        }
+        private void Form1_SizeChanged(object sender, EventArgs e)
+        {
+            // При изменении размера Form1 корректируем расположение LogsForm
+            logsForm.Location = new Point(this.Location.X + this.Width + 10, this.Location.Y);
         }
         private void InitializeManagers()
         {
@@ -109,7 +129,7 @@ namespace Soft
             await settingsManager.OpenSettingsFormAsync(); // Вызов метода из SettingsManager
             LoadInformation();
         }
-        //Обновление на кнопке настрое в зависимости от наличия данных
+        //Обновление кнопки в зависимости от наличия данных
         private void UpdateSettingsBtns(bool Load)
         {
             if (!Load)
@@ -119,7 +139,7 @@ namespace Soft
         }
         private void UpdateSafeBtns(bool Load)
         {
-            if (Load)
+            if (!Load)
             {
                 finalezButton.Visible = false;
             }

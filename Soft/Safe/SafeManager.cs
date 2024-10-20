@@ -1,6 +1,4 @@
 ﻿using MaterialSkin.Controls;
-using System.Windows.Forms;
-using System.Xml.Linq;
 
 namespace Soft.Safe
 {
