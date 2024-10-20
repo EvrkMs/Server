@@ -1,7 +1,6 @@
 ﻿// WebSocketServer.cs
 using System.Net.WebSockets;
 using System.Text;
-using Server.Hundler;
 
 namespace Server
 {
@@ -22,41 +21,41 @@ namespace Server
 
                     switch (message.Split(':')[0])
                     {
-                        case "UpdateUser":
-                            await PostHandler.HandleUpdateUserMessage(context.RequestServices, webSocket, result, message);
-                            break;
                         case "GetSettings":
-                            await GetHandler.HandleGetSettings(context.RequestServices, webSocket, result );
+                            await Settings.GetHandler.HandleGetSettings(context.RequestServices, webSocket, result );
                             break;
                         case "PostNewSettings":
-                            await PostHandler.HandlePostNewSettings(context.RequestServices, webSocket, result, message);
-                            break;
-                        case "GetSalaryHistory":
-                            await GetHandler.HandleGetSalaryHistory(context.RequestServices, webSocket, result, message);
-                            break;
-                        case "PostUser":
-                            await PostHandler.HandlePostUserMessage(context.RequestServices, webSocket, result, message);
+                            await Settings.PostHandler.HandlePostNewSettings(context.RequestServices, webSocket, result, message);
                             break;
                         case "GetUsers":
-                            await GetHandler.HandleGetUsers(context.RequestServices, webSocket, result);
+                            await Users.GetHandler.HandleGetUsers(context.RequestServices, webSocket, result);
                             break;
-                        case "PostSeyf":
-                            await PostHandler.HandlePostSeyfMessage(context.RequestServices, webSocket, result, message);
+                        case "UpdateUser":
+                            await Users.PostHandler.HandleUpdateUserMessage(context.RequestServices, webSocket, result, message);
                             break;
-                        case "GetSeyf":
-                            await GetHandler.HandleGetSeyfMessage(context.RequestServices, webSocket, result);
-                            break;
-                        case "PostZarp":
-                            await PostHandler.HandlePostZarpMessage(context.RequestServices, webSocket, result, message);
-                            break;
-                        case "GetZarp":
-                            await GetHandler.HandleGetZarp(context.RequestServices, webSocket, result, message);
+                        case "PostUser":
+                            await Users.PostHandler.HandlePostUserMessage(context.RequestServices, webSocket, result, message);
                             break;
                         case "ArchiveUser":
-                            await PostHandler.HandleArchiveUser(context.RequestServices, webSocket, result, message);
+                            await Users.PostHandler.HandleArchiveUser(context.RequestServices, webSocket, result, message);
+                            break;
+                        case "GetZarp":
+                            await Users.Salary.GetHandler.HandleGetZarp(context.RequestServices, webSocket, result, message);
+                            break;
+                        case "GetSalaryHistory":
+                            await Users.Salary.GetHandler.HandleGetSalaryHistory(context.RequestServices, webSocket, result, message);
+                            break;
+                        case "PostZarp":
+                            await Users.Salary.PostHandler.HandlePostZarpMessage(context.RequestServices, webSocket, result, message);
                             break;
                         case "FinalizeSalaries":
-                            await PostHandler.HandleFinalizeSalaries(context.RequestServices, webSocket, result);
+                            await Users.Salary.PostHandler.HandleFinalizeSalaries(context.RequestServices, webSocket, result);
+                            break;
+                        case "PostSeyf":
+                            await Seyf.PostHandler.HandlePostSeyfMessage(context.RequestServices, webSocket, result, message);
+                            break;
+                        case "GetSeyf":
+                            await Seyf.GetHandler.HandleGetSeyfMessage(context.RequestServices, webSocket, result);
                             break;
                         default:
                             await SendErrorMessage(webSocket, result, "Не существует такой команды");

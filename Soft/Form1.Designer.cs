@@ -1,6 +1,5 @@
 ﻿using MaterialSkin;
 using MaterialSkin.Controls;
-using System.Windows.Forms;
 
 namespace Soft
 {
@@ -21,6 +20,8 @@ namespace Soft
 
         private void InitializeComponent()
         {
+            refreshButton = new MaterialButton();
+            tabSelector = new MaterialTabSelector();
             tabControl = new MaterialTabControl();
             employeesTab = new TabPage();
             employeesList = new MaterialListView();
@@ -52,21 +53,57 @@ namespace Soft
             columnChatId = new ColumnHeader();
             columnPassword = new ColumnHeader();
             addSettingsButton = new MaterialButton();
-            Refresh = new MaterialButton();
-            tabSelector = new MaterialTabSelector();
-            columnHeader1 = new ColumnHeader();
-            columnHeader2 = new ColumnHeader();
-            columnHeader3 = new ColumnHeader();
-            columnHeader4 = new ColumnHeader();
-            columnHeader5 = new ColumnHeader();
-            columnHeader6 = new ColumnHeader();
-            columnHeader7 = new ColumnHeader();
+            safeTab = new TabPage();
+            safeListView = new MaterialListView();
+            columnSafeId = new ColumnHeader();
+            columnData = new ColumnHeader();
+            columnSum = new ColumnHeader();
             progressBar = new MaterialProgressBar();
             tabControl.SuspendLayout();
             employeesTab.SuspendLayout();
             salaryTab.SuspendLayout();
             telegramTab.SuspendLayout();
+            safeTab.SuspendLayout();
             SuspendLayout();
+            // 
+            // refreshButton
+            // 
+            refreshButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            refreshButton.AutoSize = false;
+            refreshButton.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            refreshButton.CausesValidation = false;
+            refreshButton.Density = MaterialButton.MaterialButtonDensity.Default;
+            refreshButton.Depth = 0;
+            refreshButton.DrawShadows = false;
+            refreshButton.HighEmphasis = true;
+            refreshButton.Icon = null;
+            refreshButton.Location = new Point(848, 25);
+            refreshButton.Margin = new Padding(4, 6, 4, 6);
+            refreshButton.MouseState = MouseState.HOVER;
+            refreshButton.Name = "refreshButton";
+            refreshButton.NoAccentTextColor = Color.Empty;
+            refreshButton.Size = new Size(98, 39);
+            refreshButton.TabIndex = 0;
+            refreshButton.Text = "Обновить";
+            refreshButton.Type = MaterialButton.MaterialButtonType.Text;
+            refreshButton.UseAccentColor = true;
+            refreshButton.UseMnemonic = false;
+            refreshButton.UseVisualStyleBackColor = true;
+            refreshButton.Click += Refresh_Click;
+            // 
+            // tabSelector
+            // 
+            tabSelector.BaseTabControl = tabControl;
+            tabSelector.CharacterCasing = MaterialTabSelector.CustomCharacterCasing.Normal;
+            tabSelector.Depth = 0;
+            tabSelector.Dock = DockStyle.Bottom;
+            tabSelector.Font = new Font("Roboto", 14F, FontStyle.Regular, GraphicsUnit.Pixel);
+            tabSelector.Location = new Point(3, 638);
+            tabSelector.MouseState = MouseState.HOVER;
+            tabSelector.Name = "tabSelector";
+            tabSelector.Size = new Size(940, 48);
+            tabSelector.TabIndex = 2;
+            tabSelector.Text = "materialTabSelector1";
             // 
             // tabControl
             // 
@@ -74,6 +111,7 @@ namespace Soft
             tabControl.Controls.Add(employeesTab);
             tabControl.Controls.Add(salaryTab);
             tabControl.Controls.Add(telegramTab);
+            tabControl.Controls.Add(safeTab);
             tabControl.Depth = 0;
             tabControl.Location = new Point(3, 64);
             tabControl.MouseState = MouseState.HOVER;
@@ -426,44 +464,50 @@ namespace Soft
             addSettingsButton.UseVisualStyleBackColor = true;
             addSettingsButton.Click += AddSettingsButton_Click;
             // 
-            // Refresh
+            // safeTab
             // 
-            Refresh.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            Refresh.AutoSize = false;
-            Refresh.AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            Refresh.CausesValidation = false;
-            Refresh.Density = MaterialButton.MaterialButtonDensity.Default;
-            Refresh.Depth = 0;
-            Refresh.DrawShadows = false;
-            Refresh.HighEmphasis = true;
-            Refresh.Icon = null;
-            Refresh.Location = new Point(848, 25);
-            Refresh.Margin = new Padding(4, 6, 4, 6);
-            Refresh.MouseState = MouseState.HOVER;
-            Refresh.Name = "Refresh";
-            Refresh.NoAccentTextColor = Color.Empty;
-            Refresh.Size = new Size(98, 39);
-            Refresh.TabIndex = 0;
-            Refresh.Text = "Обновить";
-            Refresh.Type = MaterialButton.MaterialButtonType.Text;
-            Refresh.UseAccentColor = true;
-            Refresh.UseMnemonic = false;
-            Refresh.UseVisualStyleBackColor = true;
-            Refresh.Click += Refresh_Click;
+            safeTab.Controls.Add(safeListView);
+            safeTab.Location = new Point(4, 24);
+            safeTab.Name = "safeTab";
+            safeTab.Size = new Size(932, 546);
+            safeTab.TabIndex = 3;
+            safeTab.Text = "Сейф";
+            safeTab.UseVisualStyleBackColor = true;
             // 
-            // tabSelector
+            // safeListView
             // 
-            tabSelector.BaseTabControl = tabControl;
-            tabSelector.CharacterCasing = MaterialTabSelector.CustomCharacterCasing.Normal;
-            tabSelector.Depth = 0;
-            tabSelector.Dock = DockStyle.Bottom;
-            tabSelector.Font = new Font("Roboto", 14F, FontStyle.Regular, GraphicsUnit.Pixel);
-            tabSelector.Location = new Point(3, 638);
-            tabSelector.MouseState = MouseState.HOVER;
-            tabSelector.Name = "tabSelector";
-            tabSelector.Size = new Size(940, 48);
-            tabSelector.TabIndex = 2;
-            tabSelector.Text = "materialTabSelector1";
+            safeListView.AutoSizeTable = false;
+            safeListView.BackColor = Color.FromArgb(255, 255, 255);
+            safeListView.BorderStyle = BorderStyle.None;
+            safeListView.Columns.AddRange(new ColumnHeader[] { columnSafeId, columnData, columnSum });
+            safeListView.Depth = 0;
+            safeListView.Dock = DockStyle.Fill;
+            safeListView.FullRowSelect = true;
+            safeListView.Location = new Point(0, 0);
+            safeListView.MinimumSize = new Size(200, 100);
+            safeListView.MouseLocation = new Point(-1, -1);
+            safeListView.MouseState = MouseState.OUT;
+            safeListView.Name = "safeListView";
+            safeListView.OwnerDraw = true;
+            safeListView.Size = new Size(932, 546);
+            safeListView.TabIndex = 0;
+            safeListView.UseCompatibleStateImageBehavior = false;
+            safeListView.View = View.Details;
+            // 
+            // columnSafeId
+            // 
+            columnSafeId.Text = "id";
+            columnSafeId.Width = 50;
+            // 
+            // columnData
+            // 
+            columnData.Text = "Дата";
+            columnData.Width = 150;
+            // 
+            // columnSum
+            // 
+            columnSum.Text = "Суммы";
+            columnSum.Width = 200;
             // 
             // progressBar
             // 
@@ -482,7 +526,7 @@ namespace Soft
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(946, 689);
             Controls.Add(progressBar);
-            Controls.Add(Refresh);
+            Controls.Add(refreshButton);
             Controls.Add(tabControl);
             Controls.Add(tabSelector);
             Name = "Form1";
@@ -495,11 +539,14 @@ namespace Soft
             salaryTab.PerformLayout();
             telegramTab.ResumeLayout(false);
             telegramTab.PerformLayout();
+            safeTab.ResumeLayout(false);
             ResumeLayout(false);
         }
 
         #endregion
-
+        private MaterialButton refreshButton;
+        private MaterialTabSelector tabSelector;
+        private MaterialProgressBar progressBar;
         private MaterialTabControl tabControl;
         private TabPage employeesTab;
         private MaterialListView employeesList;
@@ -508,38 +555,33 @@ namespace Soft
         private ColumnHeader columnTelegramId;
         private ColumnHeader columnCount;
         private ColumnHeader columnZarp;
+        private MaterialButton editButton;
         private MaterialButton addButton;
         private MaterialButton archiveButton;
-        private MaterialButton editButton;
-        private MaterialButton Refresh;
+        private MaterialButton showSalaryHistoryButton;
         private TabPage salaryTab;
+        private Label currentSalaryLabel;
         private MaterialListView salaryListView;
         private ColumnHeader columnDate;
         private ColumnHeader columnAmount;
         private MaterialTextBox salarySearchTextBox;
         private MaterialButton salaryHistoryButton;
-        private MaterialButton showSalaryHistoryButton;
-        private Label currentSalaryLabel;
-        private MaterialTabSelector tabSelector;
         private TabPage telegramTab;
-        private MaterialListView chatListView;
-        private ColumnHeader columnToken;
-        private ColumnHeader columnForwardChat;
-        private ColumnHeader columnChatId;
+        private MaterialListView tradListView;
         private ColumnHeader columnTradSmena;
         private ColumnHeader columnTredShtraph;
         private ColumnHeader columnTradRashod;
         private ColumnHeader columnTradPostavka;
-        private MaterialListView tradListView;
-        private ColumnHeader columnHeader1;
-        private ColumnHeader columnHeader2;
-        private ColumnHeader columnHeader3;
-        private ColumnHeader columnHeader4;
-        private ColumnHeader columnHeader5;
-        private ColumnHeader columnHeader6;
-        private ColumnHeader columnHeader7;
+        private MaterialListView chatListView;
+        private ColumnHeader columnToken;
+        private ColumnHeader columnForwardChat;
+        private ColumnHeader columnChatId;
         private ColumnHeader columnPassword;
         private MaterialButton addSettingsButton;
-        private MaterialProgressBar progressBar;
+        private TabPage safeTab;
+        private MaterialListView safeListView;
+        private ColumnHeader columnSafeId;
+        private ColumnHeader columnData;
+        private ColumnHeader columnSum;
     }
 }
