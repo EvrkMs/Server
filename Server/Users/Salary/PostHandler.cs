@@ -7,34 +7,37 @@ namespace Server.Users.Salary
         //Добавление к зарплате сотрудника
         public static async Task HandlePostZarpMessage(IServiceProvider services, WebSocket webSocket, WebSocketReceiveResult result, string message)
         {
-            var parts = HandlerUtils.ParseMessage(message, 3, "PostZarp");
-            if (parts == null)
+            var parts = message.Split(':');
+
+            // Проверка на корректность формата команды
+            if (parts.Length != 3 || parts[0] != "PostZarp")
             {
-                await HandlerUtils.SendErrorMessage(webSocket, result, "Некорректный формат сообщения.");
+                await HandlerUtils.SendErrorMessage(webSocket, result, "Некорректный формат команды.");
                 return;
             }
 
-            if (!int.TryParse(parts[1], out var employeeId))
+            // Проверяем корректность данных
+            if (!int.TryParse(parts[1], out var employeeId) || !int.TryParse(parts[2], out var zpChange))
             {
-                await HandlerUtils.SendErrorMessage(webSocket, result, "Некорректный ID сотрудника.");
+                await HandlerUtils.SendErrorMessage(webSocket, result, "Некорректные данные.");
                 return;
             }
 
-            if (!int.TryParse(parts[2], out var zpChange))
-            {
-                await HandlerUtils.SendErrorMessage(webSocket, result, "Некорректное значение зарплаты.");
-                return;
-            }
-
+            // Получаем экземпляр DBMethod
             var dbMethod = services.GetRequiredService<DBMethod>();
-            var success = await dbMethod.UpdateSalaryByIdAsync(employeeId, zpChange);  // Используем ID вместо имени
 
+            // Выполняем обновление зарплаты
+            var success = await dbMethod.UpdateSalaryByIdAsync(employeeId, zpChange);
+
+            // Проверяем результат операции
             if (success)
             {
+                // Если запрос выполнен успешно
                 await HandlerUtils.SendSuccessMessage(webSocket, result, $"Зарплата обновлена для сотрудника с ID {employeeId}. Изменение: {zpChange}");
             }
             else
             {
+                // Если операция завершена неуспешно
                 await HandlerUtils.SendErrorMessage(webSocket, result, $"Не удалось обновить зарплату для сотрудника с ID {employeeId}.");
             }
         }

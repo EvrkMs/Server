@@ -24,11 +24,11 @@ namespace Server.Migrations
 
             modelBuilder.Entity("Server.ArchivedUser", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("UserId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
 
                     b.Property<DateTime>("ArchivedDate")
                         .HasColumnType("datetime2");
@@ -37,6 +37,7 @@ namespace Server.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<long>("TelegramId")
@@ -45,7 +46,7 @@ namespace Server.Migrations
                     b.Property<int>("Zarp")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("UserId");
 
                     b.ToTable("ArchivedUsers");
                 });
@@ -85,45 +86,23 @@ namespace Server.Migrations
                     b.ToTable("SafeChanges");
                 });
 
-            modelBuilder.Entity("Server.SafeChangeHistory", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ChangeAmount")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("ChangeDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SafeChangeHistory");
-                });
-
             modelBuilder.Entity("Server.Salary", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("SalaryId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SalaryId"));
 
-                    b.Property<bool?>("IsArchived")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("TotalSalary")
+                    b.Property<decimal>("TotalSalary")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0);
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("SalaryId");
 
                     b.HasIndex("UserId")
                         .IsUnique();
@@ -166,8 +145,11 @@ namespace Server.Migrations
                     b.Property<DateTime>("FinalizedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("TotalSalary")
-                        .HasColumnType("int");
+                    b.Property<bool>("IsPaid")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal>("TotalSalary")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -218,16 +200,17 @@ namespace Server.Migrations
 
             modelBuilder.Entity("Server.User", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("UserId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
 
                     b.Property<int>("Count")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<long>("TelegramId")
@@ -236,47 +219,47 @@ namespace Server.Migrations
                     b.Property<int>("Zarp")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("UserId");
 
                     b.ToTable("Users");
                 });
 
             modelBuilder.Entity("Server.Salary", b =>
                 {
-                    b.HasOne("Server.User", "User")
-                        .WithOne()
+                    b.HasOne("Server.User", null)
+                        .WithOne("Salary")
                         .HasForeignKey("Server.Salary", "UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Server.SalaryChange", b =>
                 {
-                    b.HasOne("Server.Salary", "Salary")
+                    b.HasOne("Server.Salary", null)
                         .WithMany("SalaryChanges")
                         .HasForeignKey("SalaryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Salary");
                 });
 
             modelBuilder.Entity("Server.SalaryHistory", b =>
                 {
-                    b.HasOne("Server.User", "User")
+                    b.HasOne("Server.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Server.Salary", b =>
                 {
                     b.Navigation("SalaryChanges");
+                });
+
+            modelBuilder.Entity("Server.User", b =>
+                {
+                    b.Navigation("Salary")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

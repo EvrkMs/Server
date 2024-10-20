@@ -30,6 +30,12 @@ namespace Server
                         case "GetUsers":
                             await Users.GetHandler.HandleGetUsers(context.RequestServices, webSocket, result);
                             break;
+                        case "GetArchivedUsers":
+                            await Users.GetHandler.HandleGetArchivedUsers(context.RequestServices, webSocket, result);
+                            break;
+                        case "GetReArchivedUser":
+                            await Users.GetHandler.HandleReArchiveUserMessage(context.RequestServices, webSocket, result, message);
+                            break;
                         case "UpdateUser":
                             await Users.PostHandler.HandleUpdateUserMessage(context.RequestServices, webSocket, result, message);
                             break;
@@ -41,6 +47,9 @@ namespace Server
                             break;
                         case "GetZarp":
                             await Users.Salary.GetHandler.HandleGetZarp(context.RequestServices, webSocket, result, message);
+                            break;
+                        case "GetSalaryChanges":
+                            await Users.Salary.GetHandler.HandleGetSalaryChanges(context.RequestServices, webSocket, result, message);
                             break;
                         case "GetSalaryHistory":
                             await Users.Salary.GetHandler.HandleGetSalaryHistory(context.RequestServices, webSocket, result, message);

@@ -1,4 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace Server
 {
     public class MyDbContext(DbContextOptions<MyDbContext> options) : DbContext(options)
@@ -11,75 +14,119 @@ namespace Server
         public DbSet<SalaryHistory> SalaryHistory { get; set; }
         public DbSet<Safe> Safe { get; set; }
         public DbSet<SafeChange> SafeChanges { get; set; }
-        public DbSet<SafeChangeHistory> SafeChangeHistory {  get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Устанавливаем связь между пользователем и зарплатой
-            modelBuilder.Entity<Salary>()
-                .HasOne(s => s.User) // Связываем с таблицей Users
-                .WithOne() // Один к одному
-                .HasForeignKey<Salary>(s => s.UserId) // Внешний ключ
-                .OnDelete(DeleteBehavior.Restrict); // Запрещаем каскадное удаление, чтобы зарплата не удалялась
+            // Связь один-к-одному между User и Salary
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.Salary) // Один пользователь имеет одну зарплату
+                .WithOne() // Не требуется обратная ссылка в Salary
+                .HasForeignKey<Salary>(s => s.UserId) // Внешний ключ Salary ссылается на User
+                .OnDelete(DeleteBehavior.Restrict); // Запрещаем каскадное удаление
 
-            // Устанавливаем значение по умолчанию для зарплаты
+            // Связь один-ко-многим между Salary и SalaryChange
+            modelBuilder.Entity<Salary>()
+                .HasMany(s => s.SalaryChanges) // Один Salary имеет много изменений
+                .WithOne() // Каждое изменение связано с одним Salary
+                .HasForeignKey(sc => sc.SalaryId) // Внешний ключ SalaryChange ссылается на Salary
+                .OnDelete(DeleteBehavior.Cascade); // При удалении Salary, изменения удаляются
+
+            // Связь между User и SalaryHistory
+            modelBuilder.Entity<SalaryHistory>()
+                .HasOne<User>() // Один User может иметь много записей истории зарплат
+                .WithMany() // У User может быть много записей SalaryHistory
+                .HasForeignKey(sh => sh.UserId) // Внешний ключ SalaryHistory ссылается на User
+                .OnDelete(DeleteBehavior.Restrict); // Запрещаем каскадное удаление
+
+            // Настройка архивации: связь между User и ArchivedUser по UserId
+            modelBuilder.Entity<ArchivedUser>()
+                .HasKey(au => au.UserId); // UserId остаётся неизменным для архивированных пользователей
+
+            // Устанавливаем значение по умолчанию для TotalSalary
             modelBuilder.Entity<Salary>()
                 .Property(s => s.TotalSalary)
                 .HasDefaultValue(0); // Зарплата по умолчанию 0
 
+            // Отключаем каскадное удаление для TelegramSettings
+            modelBuilder.Entity<TelegramSettings>()
+                .HasKey(ts => ts.Id); // Уникальный ключ для настроек Telegram
+
             base.OnModelCreating(modelBuilder);
-        }
-
-        // Добавляем пользователя вместе с записью о зарплате
-        public async Task AddUserAsync(User newUser)
-        {
-            using var transaction = await Database.BeginTransactionAsync();
-
-            // Добавляем нового пользователя
-            Users.Add(newUser);
-            await SaveChangesAsync();
-
-            // Создаем запись о зарплате
-            var salary = new Salary
-            {
-                UserId = newUser.Id,
-                TotalSalary = 0  // Зарплата по умолчанию
-            };
-            Salaries.Add(salary);
-            await SaveChangesAsync();
-
-            await transaction.CommitAsync();
-        }
-
-        // Архивирование пользователя
-        public async Task ArchiveUserAsync(int userId)
-        {
-            var user = await Users.FindAsync(userId) ?? throw new Exception("Пользователь не найден.");
-
-            // Перемещаем пользователя в архив
-            ArchivedUsers.Add(new ArchivedUser
-            {
-                Id = user.Id,
-                Name = user.Name,
-                TelegramId = user.TelegramId,
-                Count = user.Count,
-                Zarp = user.Zarp,
-                ArchivedDate = DateTime.UtcNow
-            });
-
-            // Удаляем пользователя из основной таблицы
-            Users.Remove(user);
-            await SaveChangesAsync();
         }
     }
 
     public class User
     {
-        public int Id { get; set; }
-        public string? Name { get; set; }
+        [Key]
+        public int UserId { get; set; } // Автоинкрементируемый первичный ключ
+        public string Name { get; set; }
         public long TelegramId { get; set; }
         public int Count { get; set; }
         public int Zarp { get; set; }
+
+        public virtual Salary Salary { get; set; } // Связь с таблицей Salary
+    }
+
+    public class ArchivedUser
+    {
+        [Key]
+        public int UserId { get; set; } // Идентификатор пользователя остаётся неизменным
+        public string Name { get; set; }
+        public long TelegramId { get; set; }
+        public int Count { get; set; }
+        public int Zarp { get; set; }
+        public DateTime ArchivedDate { get; set; }
+    }
+
+    public class Salary
+    {
+        [Key]
+        public int SalaryId { get; set; }
+
+        [ForeignKey("User")]
+        public int UserId { get; set; } // Привязка к таблице Users
+
+        public decimal TotalSalary { get; set; } // Текущая зарплата
+
+        public virtual List<SalaryChange> SalaryChanges { get; set; } // Связь с изменениями зарплат
+    }
+
+    public class SalaryChange
+    {
+        [Key]
+        public int Id { get; set; }
+
+        [ForeignKey("Salary")]
+        public int SalaryId { get; set; } // Связь с таблицей Salary
+
+        public int ChangeAmount { get; set; } // Изменение суммы
+        public DateTime ChangeDate { get; set; } // Дата изменения
+    }
+
+    public class SalaryHistory
+    {
+        [Key]
+        public int Id { get; set; }
+
+        [ForeignKey("User")]
+        public int UserId { get; set; } // Привязка к пользователю
+
+        public decimal TotalSalary { get; set; } // Итоговая зарплата после пересчёта
+        public DateTime FinalizedDate { get; set; } // Дата пересчёта
+        public bool IsPaid { get; set; } = false; // Поле для отметки, выплачена ли зарплата
+    }
+
+    public class Safe
+    {
+        public int Id { get; set; }
+        public int TotalAmount { get; set; } // Общая сумма в сейфе
+    }
+
+    public class SafeChange
+    {
+        public int Id { get; set; }
+        public int ChangeAmount { get; set; } // Изменение суммы
+        public DateTime ChangeDate { get; set; } // Дата изменения
     }
 
     public class TelegramSettings
@@ -93,68 +140,5 @@ namespace Server
         public int TraidRashod { get; set; }
         public int TraidPostavka { get; set; }
         public string? Password { get; set; }
-    }
-
-    public class Salary
-    {
-        public int Id { get; set; }
-        public int UserId { get; set; }
-        public int TotalSalary { get; set; }
-        public bool? IsArchived { get; set; } = false;  // Новый флаг для архивирования
-        public User? User { get; set; }
-
-        // Связь с историей изменений
-        public List<SalaryChange>? SalaryChanges { get; set; }
-    }
-
-    public class SalaryChange
-    {
-        public int Id { get; set; }
-        public int SalaryId { get; set; }
-        public int ChangeAmount { get; set; }
-        public DateTime ChangeDate { get; set; }
-
-        public Salary? Salary { get; set; }
-    }
-
-    // Модель для таблицы Safe
-    public class Safe
-    {
-        public int Id { get; set; }
-        public int TotalAmount { get; set; }
-    }
-
-    // Модель для таблицы SafeChanges
-    public class SafeChange
-    {
-        public int Id { get; set; }
-        public int ChangeAmount { get; set; }
-        public DateTime ChangeDate { get; set; }
-    }
-    public class SafeChangeHistory
-    {
-        public int Id { get; set; }
-        public DateTime ChangeDate { get; set; }
-        public int ChangeAmount { get; set; }
-    }
-    // Новая модель для истории зарплат
-    public class SalaryHistory
-    {
-        public int Id { get; set; }
-        public int UserId { get; set; }
-        public int TotalSalary { get; set; }
-        public DateTime FinalizedDate { get; set; }
-
-        // Связь с пользователем
-        public User? User { get; set; }
-    }
-    public class ArchivedUser
-    {
-        public int Id { get; set; }
-        public string? Name { get; set; }
-        public long TelegramId { get; set; }
-        public int Count { get; set; }
-        public int Zarp { get; set; }
-        public DateTime ArchivedDate { get; set; }
     }
 }

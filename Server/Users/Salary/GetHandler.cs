@@ -60,5 +60,34 @@ namespace Server.Users.Salary
             {
                 await HandlerUtils.SendSuccessMessage(webSocket, result, $"Сотрудник {name} не найден.");
             }
-        }    }
+        }
+        public static async Task HandleGetSalaryChanges(IServiceProvider services, WebSocket webSocket, WebSocketReceiveResult result, string message)
+        {
+            var parts = message.Split(':');
+            if (parts.Length != 2 || parts[0] != "GetSalaryChanges")
+            {
+                await HandlerUtils.SendErrorMessage(webSocket, result, "Некорректный формат сообщения.");
+                return;
+            }
+
+            if (!int.TryParse(parts[1], out var salaryId))
+            {
+                await HandlerUtils.SendErrorMessage(webSocket, result, "Некорректный ID зарплаты.");
+                return;
+            }
+
+            var dbMethod = services.GetRequiredService<DBMethod>();
+            var salaryChanges = await dbMethod.GetSalaryChangesBySalaryIdAsync(salaryId);
+
+            if (salaryChanges == null || salaryChanges.Count == 0)
+            {
+                await webSocket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes("[]")), result.MessageType, true, CancellationToken.None);
+            }
+            else
+            {
+                var jsonResponse = JsonSerializer.Serialize(salaryChanges, HandlerUtils.jsonOptions);
+                await webSocket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(jsonResponse)), result.MessageType, true, CancellationToken.None);
+            }
+        }
+    }
 }

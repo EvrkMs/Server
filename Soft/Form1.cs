@@ -24,49 +24,40 @@ namespace Soft
 
             logsForm = new LogsForm
             {
-                StartPosition = FormStartPosition.Manual, // Устанавливаем ручную позицию
-                Location = new Point(this.Location.X + this.Width + 10, this.Location.Y) // Располагаем LogsForm справа от Form1
-            }; // Инициализируем форму логов
-            logsForm.Show(); // Показываем форму логов
+                StartPosition = FormStartPosition.Manual,
+                Location = new Point(this.Location.X + this.Width + 10, this.Location.Y)
+            };
+            logsForm.Show();
 
-            // Привязываем события перемещения и изменения размера основного окна
             this.LocationChanged += Form1_LocationChanged;
             this.SizeChanged += Form1_SizeChanged;
 
             BlockUI(true);
-            _ = ConnectAndInitializeAsync(); // Подключаемся к веб-сокету
+            _ = ConnectAndInitializeAsync(); // Подключаемся к WebSocket
         }
-        private void Form1_LocationChanged(object sender, EventArgs e)
-        {
-            // При перемещении Form1 перемещаем и LogsForm
-            logsForm.Location = new Point(this.Location.X + this.Width + 10, this.Location.Y);
-        }
-        private void Form1_SizeChanged(object sender, EventArgs e)
-        {
-            // При изменении размера Form1 корректируем расположение LogsForm
-            logsForm.Location = new Point(this.Location.X + this.Width + 10, this.Location.Y);
-        }
+
         private void InitializeManagers()
         {
-            userManager = new UserManager(employeesList);
-            salaryManager = new SalaryManager(salaryListView, currentSalaryLabel);
+            userManager = new UserManager(employeesList, employeesArchivedList);
+            salaryManager = new SalaryManager(selectedEmployeesList, salaryChangedListView, salaryChangedHistoryListView);
             settingsManager = new SettingsManager(chatListView, tradListView);
             safeManager = new SafeManager(safeListView, currentSafeLabel);
         }
-        // Метод для подключения к веб-сокету
+
         private async Task ConnectAndInitializeAsync()
         {
             progressBar.Value = 10;
-            await ConnectWebSocketAsync("ws://localhost:5000"); // Подключаемся к веб-сокету
+            await ConnectWebSocketAsync("ws://localhost:5000");
             progressBar.Value = 20;
             LoadInformation();
             BlockUI(false);
         }
-        private async void LoadInformation()
+
+        public async void LoadInformation()
         {
-            await userManager.LoadUsersAsync(); // Загружаем список сотрудников
+            await userManager.LoadUsersAsync(); // Загрузка списка пользователей
             progressBar.Value = 40;
-            await settingsManager.LoadTelegramSettingsAsync(); // Загружаем настройки Telegram
+            await settingsManager.LoadTelegramSettingsAsync();
             progressBar.Value = 60;
             await safeManager.LoadSafeChangesHistoryAsync();
             await safeManager.LoadSafeAsync();
@@ -75,22 +66,21 @@ namespace Soft
             UpdateSafeBtns(SafeManager.TrueHistory);
             progressBar.Value = 100;
         }
-        // Методы WebSocket
-        // Подключение к WebSocket серверу
+
         private static async Task ConnectWebSocketAsync(string uri)
         {
             client = new ClientWebSocket();
             await client.ConnectAsync(new Uri(uri), CancellationToken.None);
             LogMessage("WebSocket подключен.");
         }
-        // Метод для отправки сообщения через WebSocket
+
         public static async Task SendMessageAsync(string message)
         {
             LogMessage($"Отправка сообщения: {message}");
             var buffer = Encoding.UTF8.GetBytes(message);
             await client.SendAsync(new ArraySegment<byte>(buffer), WebSocketMessageType.Text, true, CancellationToken.None);
         }
-        // Метод для получения сообщения через WebSocket
+
         public static async Task<string> ReceiveMessageAsync()
         {
             var buffer = new byte[1024];
@@ -99,13 +89,22 @@ namespace Soft
             LogMessage($"Получено сообщение: {receivedMessage}");
             return receivedMessage;
         }
-        // Метод для логирования сообщений
+
         public static void LogMessage(string message)
         {
             logsForm.AppendLog(message);
         }
-        // Остальные методы
-        // Показать историю сотрудника
+
+        private void Form1_LocationChanged(object sender, EventArgs e)
+        {
+            logsForm.Location = new Point(this.Location.X + this.Width + 10, this.Location.Y);
+        }
+
+        private void Form1_SizeChanged(object sender, EventArgs e)
+        {
+            logsForm.Location = new Point(this.Location.X + this.Width + 10, this.Location.Y);
+        }
+
         private async void ShowSalaryHistoryButton_Click(object sender, EventArgs e)
         {
             if (employeesList.SelectedItems.Count == 0)
@@ -115,41 +114,37 @@ namespace Soft
             }
 
             var selectedEmployee = employeesList.SelectedItems[0];
-            int employeeId = Convert.ToInt32(selectedEmployee.Text); // ID сотрудника
-            string employeeName = selectedEmployee.SubItems[1].Text; // Имя сотрудника
+            int employeeId = Convert.ToInt32(selectedEmployee.Text);
+            string employeeName = selectedEmployee.SubItems[1].Text;
 
-            await salaryManager.LoadSalaryHistoryAsync(employeeId); // Загрузка истории зарплат
-            await salaryManager.LoadCurrentSalaryAsync(employeeName); // Загрузка текущей зарплаты
+            await salaryManager.LoadCurrentSalaryAsync(employeeName);
+            var currentSalary = await salaryManager.GetCurrentSalary(employeeName);
 
-            tabControl.SelectedTab = salaryTab; // Переход на вкладку с зарплатами
+            PopulateSelectedEmployee(employeeName, employeeId, currentSalary);
+
+            await salaryManager.LoadSalaryChangesAsync(employeeId);
+            await salaryManager.LoadSalaryHistoryAsync(employeeId);
+
+            tabControl.SelectedTab = salaryTab;
         }
-        // Создания или редактирования списка сотрудников
+
+        private void PopulateSelectedEmployee(string employeeName, int employeeId, decimal currentSalary)
+        {
+            selectedEmployeesList.Items.Clear();
+
+            var listItem = new ListViewItem(employeeId.ToString());
+            listItem.SubItems.Add(employeeName);
+            listItem.SubItems.Add(currentSalary.ToString("C"));
+
+            selectedEmployeesList.Items.Add(listItem);
+        }
+
         private async void AddSettingsButton_Click(object sender, EventArgs e)
         {
-            await settingsManager.OpenSettingsFormAsync(); // Вызов метода из SettingsManager
+            await settingsManager.OpenSettingsFormAsync();
             LoadInformation();
         }
-        // Обновление кнопки в зависимости от наличия данных
-        private void UpdateSettingsBtns(bool Load)
-        {
-            if (!Load)
-            {
-                addSettingsButton.Text = "Редактировать";
-            }
-        }
-        private void UpdateSafeBtns(bool Load)
-        {
-            if (!Load)
-            {
-                finalezButton.Visible = false;
-            }
-        }
-        // Обновление инофрмации
-        private void Refresh_Click(object sender, EventArgs e)
-        {
-            LoadInformation();
-        }
-        // Открытие вкладки истории зарплат
+
         private async void OpenSalaryHistoryTab(object sender, EventArgs e)
         {
             if (employeesList.SelectedItems.Count == 0)
@@ -159,78 +154,140 @@ namespace Soft
             }
 
             var selectedEmployee = employeesList.SelectedItems[0];
-            int employeeId = Convert.ToInt32(selectedEmployee.Text); // ID сотрудника
-            string employeeName = selectedEmployee.SubItems[1].Text; // Имя сотрудника
+            int employeeId = Convert.ToInt32(selectedEmployee.Text);
+            string employeeName = selectedEmployee.SubItems[1].Text;
 
-            await salaryManager.LoadSalaryHistoryAsync(employeeId); // Загрузка истории зарплат
-            await salaryManager.LoadCurrentSalaryAsync(employeeName); // Загрузка текущей зарплаты
+            await salaryManager.LoadSalaryHistoryAsync(employeeId);
+            await salaryManager.LoadCurrentSalaryAsync(employeeName);
         }
-        // Добавление сотрудника
+
         private async void AddButton_Click(object sender, EventArgs e)
         {
-            await userManager.AddEmployeeAsync(); // Вызов метода для добавления сотрудника
+            await userManager.AddEmployeeAsync();
         }
-        // Редактирования сотруднкиа сотрудника
+
         private async void EditButton_Click(object sender, EventArgs e)
         {
-            await userManager.EditEmployeeAsync(); // Вызов метода из UserManager для редактирования сотрудника
+            await userManager.EditEmployeeAsync();
         }
-        // Архивация сотрудника
+
         private async void ArchiveButton_Click(object sender, EventArgs e)
         {
-            if (employeesList.SelectedItems.Count == 0)
+            if (employeesList.SelectedItems.Count > 0)
             {
-                MessageBox.Show("Выберите сотрудника для архивирования.");
-                return;
+                var selectedEmployee = employeesList.SelectedItems[0];
+                string employeeName = selectedEmployee.SubItems[1].Text;
+
+                DialogResult result = MessageBox.Show($"Вы уверены, что хотите архивировать сотрудника {employeeName}?",
+                                                      "Подтверждение архивирования",
+                                                      MessageBoxButtons.YesNo,
+                                                      MessageBoxIcon.Warning);
+
+                if (result == DialogResult.Yes)
+                {
+                    await userManager.ArchiveEmployeeAsync();
+                }
+                else
+                {
+                    MessageBox.Show("Архивирование отменено.");
+                }
             }
-
-            var selectedEmployee = employeesList.SelectedItems[0];
-            string employeeName = selectedEmployee.SubItems[1].Text; // Имя сотрудника
-
-            // Вызов диалогового окна с подтверждением
-            DialogResult result = MessageBox.Show($"Вы уверены, что хотите архивировать сотрудника {employeeName}?",
-                                                  "Подтверждение архивирования",
-                                                  MessageBoxButtons.YesNo,
-                                                  MessageBoxIcon.Warning);
-
-            if (result == DialogResult.Yes)
+            else if (employeesArchivedList.SelectedItems.Count > 0)
             {
-                await userManager.ArchiveEmployeeAsync(); // Выполняем архивирование только при подтверждении
+                var selectedArchivedEmployee = employeesArchivedList.SelectedItems[0];
+                string archivedEmployeeName = selectedArchivedEmployee.SubItems[1].Text;
+
+                DialogResult result = MessageBox.Show($"Вы уверены, что хотите разархивировать сотрудника {archivedEmployeeName}?",
+                                                      "Подтверждение разархивирования",
+                                                      MessageBoxButtons.YesNo,
+                                                      MessageBoxIcon.Question);
+
+                if (result == DialogResult.Yes)
+                {
+                    await userManager.ReArchiveEmployeeAsync();
+                }
+                else
+                {
+                    MessageBox.Show("Разархивирование отменено.");
+                }
             }
             else
             {
-                MessageBox.Show("Архивирование отменено.");
+                MessageBox.Show("Выберите сотрудника для архивирования или разархивирования.");
             }
+
             LoadInformation();
         }
-        // Закрытие WebSocket соединения
-        private async void Form1_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            if (client != null && client.State == WebSocketState.Open)
-            {
-                await client.CloseAsync(WebSocketCloseStatus.NormalClosure, "Закрытие соединения", CancellationToken.None);
-                client.Dispose();
-            }
-        }
-        // Метод блокировки элементов управления
-        private void BlockUI(bool block)
-        {
-            foreach (Control control in Controls)
-            {
-                control.Enabled = !block;  // Блокируем все элементы управления, кроме прогресс-бара
-            }
-            progressBar.Enabled = true; // Прогресс-бар всегда активен
-        }
-        // Сокращение истории сейфа
+
         private async void FinalezButton_Click(object sender, EventArgs e)
         {
             await safeManager.FinalizeSafeOverWebSocketAsync();
             LoadInformation();
         }
-        // Добавление записи в сейф
+
         private async void AddSafe_Click(object sender, EventArgs e)
         {
             await safeManager.PostSafe();
+        }
+
+        private async void AddSumSalary_Click(object sender, EventArgs e)
+        {
+            if (selectedEmployeesList.Items.Count == 0)
+            {
+                MessageBox.Show("Сначала выберите сотрудника.");
+                return;
+            }
+
+            var selectedEmployee = selectedEmployeesList.Items[0];
+            int salaryId = Convert.ToInt32(selectedEmployee.SubItems[0].Text);
+            string employeeName = selectedEmployee.SubItems[1].Text;
+
+            string input = Microsoft.VisualBasic.Interaction.InputBox("Введите сумму для добавления к зарплате:", "Добавление к зарплате", "0");
+            if (!int.TryParse(input, out var zpChange))
+            {
+                MessageBox.Show("Некорректное значение суммы.");
+                return;
+            }
+
+            await Form1.SendMessageAsync($"PostZarp:{salaryId}:{zpChange}");
+            var serverResponse = await Form1.ReceiveMessageAsync();
+
+            if (serverResponse.Contains($"Зарплата обновлена для сотрудника с ID {salaryId}"))
+            {
+                MessageBox.Show($"Зарплата обновлена для сотрудника {employeeName}. Изменение: {zpChange}");
+                await salaryManager.LoadCurrentSalaryAsync(employeeName);
+                PopulateSelectedEmployee(employeeName, salaryId, await salaryManager.GetCurrentSalary(employeeName));
+                await salaryManager.LoadSalaryChangesAsync(salaryId);
+            }
+            else
+            {
+                MessageBox.Show($"Ошибка: {serverResponse}");
+            }
+        }
+
+        private void BlockUI(bool block)
+        {
+            foreach (Control control in Controls)
+            {
+                control.Enabled = !block;
+            }
+            progressBar.Enabled = true; // Прогресс-бар всегда активен
+        }
+
+        private void UpdateSettingsBtns(bool Load)
+        {
+            if (!Load)
+            {
+                addSettingsButton.Text = "Редактировать";
+            }
+        }
+
+        private void UpdateSafeBtns(bool Load)
+        {
+            if (!Load)
+            {
+                finalezButton.Visible = false;
+            }
         }
     }
 }

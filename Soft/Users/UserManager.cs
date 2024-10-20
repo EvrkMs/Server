@@ -2,33 +2,42 @@
 
 namespace Soft.Users
 {
-    public class UserManager(MaterialListView employeesList)
+    public class UserManager(MaterialListView employeesList, MaterialListView employeesArchivedList)
     {
-        private MaterialListView employeesList = employeesList;
+        private readonly MaterialListView _employeesList = employeesList;
+        private readonly MaterialListView _employeesArchivedList = employeesArchivedList;
 
-        // Метод для загрузки списка сотрудников
         public async Task LoadUsersAsync()
         {
             await Form1.SendMessageAsync("GetUsers");
             var employeesData = await Form1.ReceiveMessageAsync();
+            var employees = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Users>>(employeesData);
+            AddSubItemInListView(_employeesList, employees);
 
-            var employees = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Employee>>(employeesData);
-            employeesList.Items.Clear();
+            await Form1.SendMessageAsync("GetArchivedUsers");
+            var employeesArchivedData = await Form1.ReceiveMessageAsync();
+            var employeesArchived = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Users>>(employeesArchivedData);
+            AddSubItemInListView(_employeesArchivedList, employeesArchived);
+        }
+
+        private void AddSubItemInListView(MaterialListView listView, List<Users> employees)
+        {
+            listView.Items.Clear();
 
             foreach (var employee in employees)
             {
-                var listItem = new ListViewItem(employee.Id.ToString());
+                var listItem = new ListViewItem(employee.UserId.ToString());
                 listItem.SubItems.Add(employee.Name);
                 listItem.SubItems.Add(employee.TelegramId.ToString());
                 listItem.SubItems.Add(employee.Count.ToString());
                 listItem.SubItems.Add(employee.Zarp.ToString());
-                employeesList.Items.Add(listItem);
+                listView.Items.Add(listItem);
             }
         }
-        // Метод для добавления нового сотрудника
+
         public async Task AddEmployeeAsync()
         {
-            var addForm = new AddEmployeeForm(); // Форма для добавления нового сотрудника
+            var addForm = new AddEmployeeForm();
             var result = addForm.ShowDialog();
 
             if (result == DialogResult.OK)
@@ -40,14 +49,13 @@ namespace Soft.Users
 
                 string message = $"PostUser:{name}:{telegramId}:{count}:{zarp}";
 
-                // Отправка сообщения на сервер для добавления сотрудника
                 await Form1.SendMessageAsync(message);
                 var serverResponse = await Form1.ReceiveMessageAsync();
 
                 if (serverResponse.Contains("успешно добавлен"))
                 {
                     MessageBox.Show($"Сотрудник {name} успешно добавлен.");
-                    await LoadUsersAsync(); // Обновляем список сотрудников после добавления
+                    await LoadUsersAsync();
                 }
                 else
                 {
@@ -55,48 +63,44 @@ namespace Soft.Users
                 }
             }
         }
-        // Метод для редактирования существующего сотрудника
+
         public async Task EditEmployeeAsync()
         {
-            if (employeesList.SelectedItems.Count == 0)
+            if (_employeesList.SelectedItems.Count == 0)
             {
                 MessageBox.Show("Выберите сотрудника для редактирования.");
                 return;
             }
 
-            var selectedEmployee = employeesList.SelectedItems[0];
+            var selectedEmployee = _employeesList.SelectedItems[0];
             string employeeName = selectedEmployee.SubItems[1].Text;
 
-            var editForm = new EditEmployeeForm(employeeName); // Форма для редактирования сотрудника
+            var editForm = new EditEmployeeForm(employeeName);
             var result = editForm.ShowDialog();
 
             if (result == DialogResult.OK)
             {
                 string message = $"UpdateUser:{employeeName}";
 
-                // Если TelegramId не null и больше 0, добавляем его, иначе пустую строку
                 message += editForm.TelegramId != null && editForm.TelegramId > 0
                     ? $":{editForm.TelegramId.ToString()}"
                     : $":{string.Empty}";
 
-                // Если Count не null и больше 0, добавляем его, иначе пустую строку
                 message += editForm.Count != null && editForm.Count > 0
                     ? $":{editForm.Count.ToString()}"
                     : $":{string.Empty}";
 
-                // Если Zarp не null и больше 0, добавляем его, иначе пустую строку
                 message += editForm.Zarp != null && editForm.Zarp > 0
                     ? $":{editForm.Zarp.ToString()}"
                     : $":{string.Empty}";
 
-                // Отправка сообщения через веб-сокет
                 await Form1.SendMessageAsync(message);
                 var serverResponse = await Form1.ReceiveMessageAsync();
 
                 if (serverResponse.Contains("успешно обновлен"))
                 {
                     MessageBox.Show($"Сотрудник {employeeName} успешно обновлен.");
-                    await LoadUsersAsync(); // Обновляем список сотрудников после редактирования
+                    await LoadUsersAsync();
                 }
                 else
                 {
@@ -104,40 +108,57 @@ namespace Soft.Users
                 }
             }
         }
-        // Метод для архивации сотрудника
+
         public async Task ArchiveEmployeeAsync()
         {
-            var selectedEmployee = employeesList.SelectedItems[0]; // Получаем выбранный элемент
-            long employeeId = Convert.ToInt64(selectedEmployee.Text); // Получаем ID сотрудника
+            var selectedEmployee = _employeesList.SelectedItems[0];
+            long employeeId = Convert.ToInt64(selectedEmployee.Text);
 
             string message = $"ArchiveUser:{employeeId}";
 
-            // Отправка запроса на сервер через веб-сокет
             await Form1.SendMessageAsync(message);
             var serverResponse = await Form1.ReceiveMessageAsync();
 
-            // Проверка ответа от сервера
             if (serverResponse.Contains("перемещён в архив"))
             {
                 MessageBox.Show($"Сотрудник с ID {employeeId} успешно архивирован.");
-                await LoadUsersAsync(); // Обновляем список сотрудников после архивирования
-            }
-            else if (serverResponse.Contains("Ошибка"))
-            {
-                MessageBox.Show($"Ошибка архивирования: {serverResponse}");
+                await LoadUsersAsync();
             }
             else
             {
-                // Если сервер вернул что-то неожиданное
-                MessageBox.Show($"Неожиданный ответ сервера: {serverResponse}");
+                MessageBox.Show($"Ошибка архивирования: {serverResponse}");
+            }
+        }
+
+        public async Task ReArchiveEmployeeAsync()
+        {
+            if (_employeesArchivedList.SelectedItems.Count == 0)
+            {
+                MessageBox.Show("Выберите сотрудника для разархивирования.");
+                return;
+            }
+
+            var selectedEmployee = _employeesArchivedList.SelectedItems[0];
+            int employeeId = Convert.ToInt32(selectedEmployee.Text);
+
+            await Form1.SendMessageAsync($"GetReArchivedUser:{employeeId}");
+            var serverResponse = await Form1.ReceiveMessageAsync();
+
+            if (serverResponse.Contains("успешно разархивирован"))
+            {
+                MessageBox.Show($"Сотрудник с ID {employeeId} успешно разархивирован.");
+                await LoadUsersAsync();
+            }
+            else
+            {
+                MessageBox.Show($"Ошибка разархивирования: {serverResponse}");
             }
         }
     }
 
-    // Класс для хранения данных о сотруднике
-    public class Employee
+    public class Users
     {
-        public long Id { get; set; }
+        public long UserId { get; set; }
         public string? Name { get; set; }
         public long TelegramId { get; set; }
         public int Count { get; set; }
