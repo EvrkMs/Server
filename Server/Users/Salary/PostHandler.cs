@@ -14,7 +14,12 @@ namespace Server.Users.Salary
                 return;
             }
 
-            var name = parts[1];
+            if (!int.TryParse(parts[1], out var employeeId))
+            {
+                await HandlerUtils.SendErrorMessage(webSocket, result, "Некорректный ID сотрудника.");
+                return;
+            }
+
             if (!int.TryParse(parts[2], out var zpChange))
             {
                 await HandlerUtils.SendErrorMessage(webSocket, result, "Некорректное значение зарплаты.");
@@ -22,15 +27,15 @@ namespace Server.Users.Salary
             }
 
             var dbMethod = services.GetRequiredService<DBMethod>();
-            var success = await dbMethod.UpdateSalaryAsync(name, zpChange);
+            var success = await dbMethod.UpdateSalaryByIdAsync(employeeId, zpChange);  // Используем ID вместо имени
 
             if (success)
             {
-                await HandlerUtils.SendSuccessMessage(webSocket, result, $"Зарплата обновлена для {name}. Изменение: {zpChange}");
+                await HandlerUtils.SendSuccessMessage(webSocket, result, $"Зарплата обновлена для сотрудника с ID {employeeId}. Изменение: {zpChange}");
             }
             else
             {
-                await HandlerUtils.SendErrorMessage(webSocket, result, $"Не удалось обновить зарплату для {name}.");
+                await HandlerUtils.SendErrorMessage(webSocket, result, $"Не удалось обновить зарплату для сотрудника с ID {employeeId}.");
             }
         }
         //Пересчёт зарплат

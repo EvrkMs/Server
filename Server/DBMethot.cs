@@ -93,29 +93,37 @@ namespace Server
             return await _context.SalaryHistory.Where(s => s.UserId == employeeId).ToListAsync();
         }
         // Метод для обновления зарплаты сотрудника
-        public async Task<bool> UpdateSalaryAsync(string name, int zpChange)
+        public async Task<bool> UpdateSalaryByIdAsync(int employeeId, int zpChange)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Name == name);
+            // Ищем сотрудника по ID
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == employeeId);
             if (user == null) return false;
 
-            var salary = await _context.Salaries.FirstOrDefaultAsync(s => s.UserId == user.Id)
-                         ?? new Salary { UserId = user.Id, TotalSalary = 0 };
+            // Проверяем, существует ли запись о зарплате сотрудника
+            var salary = await _context.Salaries.FirstOrDefaultAsync(s => s.UserId == user.Id);
+            if (salary == null)
+            {
+                // Если запись о зарплате отсутствует, создаем новую
+                salary = new Salary { UserId = user.Id, TotalSalary = 0 };
+                await _context.Salaries.AddAsync(salary);
+                await _context.SaveChangesAsync(); // Сохраняем новую запись, чтобы получить её ID
+            }
 
+            // Обновляем общую зарплату
             salary.TotalSalary += zpChange;
 
+            // Добавляем запись в таблицу изменений зарплаты (SalaryChanges)
             var salaryChange = new SalaryChange
             {
-                SalaryId = salary.Id,
+                SalaryId = salary.Id, // Убедись, что SalaryId существует
                 ChangeAmount = zpChange,
                 ChangeDate = DateTime.Now
             };
+            await _context.SalaryChanges.AddAsync(salaryChange);
 
-            return await SafeExecuteAsync(async () =>
-            {
-                if (salary.Id == 0) _context.Salaries.Add(salary); // Добавляем новую зарплату, если её не было
-                _context.SalaryChanges.Add(salaryChange);
-                await _context.SaveChangesAsync();
-            });
+            // Сохраняем изменения в базе данных
+            await _context.SaveChangesAsync();
+            return true;
         }
         // Пересчёт зарплат и добавление их в историю
         public async Task FinalizeSalariesAsync()

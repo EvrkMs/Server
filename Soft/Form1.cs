@@ -75,7 +75,7 @@ namespace Soft
             UpdateSafeBtns(SafeManager.TrueHistory);
             progressBar.Value = 100;
         }
-        //Методы WebSocket
+        // Методы WebSocket
         // Подключение к WebSocket серверу
         private static async Task ConnectWebSocketAsync(string uri)
         {
@@ -100,12 +100,12 @@ namespace Soft
             return receivedMessage;
         }
         // Метод для логирования сообщений
-        private static void LogMessage(string message)
+        public static void LogMessage(string message)
         {
             logsForm.AppendLog(message);
         }
-        //остальные методы
-        //показать историю сотрудника
+        // Остальные методы
+        // Показать историю сотрудника
         private async void ShowSalaryHistoryButton_Click(object sender, EventArgs e)
         {
             if (employeesList.SelectedItems.Count == 0)
@@ -123,13 +123,13 @@ namespace Soft
 
             tabControl.SelectedTab = salaryTab; // Переход на вкладку с зарплатами
         }
-        //Создания или редактирования списка сотрудников
+        // Создания или редактирования списка сотрудников
         private async void AddSettingsButton_Click(object sender, EventArgs e)
         {
             await settingsManager.OpenSettingsFormAsync(); // Вызов метода из SettingsManager
             LoadInformation();
         }
-        //Обновление кнопки в зависимости от наличия данных
+        // Обновление кнопки в зависимости от наличия данных
         private void UpdateSettingsBtns(bool Load)
         {
             if (!Load)
@@ -165,7 +165,7 @@ namespace Soft
             await salaryManager.LoadSalaryHistoryAsync(employeeId); // Загрузка истории зарплат
             await salaryManager.LoadCurrentSalaryAsync(employeeName); // Загрузка текущей зарплаты
         }
-        //Добавление сотрудника
+        // Добавление сотрудника
         private async void AddButton_Click(object sender, EventArgs e)
         {
             await userManager.AddEmployeeAsync(); // Вызов метода для добавления сотрудника
@@ -175,7 +175,7 @@ namespace Soft
         {
             await userManager.EditEmployeeAsync(); // Вызов метода из UserManager для редактирования сотрудника
         }
-        //Архивация сотрудника
+        // Архивация сотрудника
         private async void ArchiveButton_Click(object sender, EventArgs e)
         {
             if (employeesList.SelectedItems.Count == 0)
@@ -221,13 +221,13 @@ namespace Soft
             }
             progressBar.Enabled = true; // Прогресс-бар всегда активен
         }
-        //Сокращение истории сейфа
+        // Сокращение истории сейфа
         private async void FinalezButton_Click(object sender, EventArgs e)
         {
             await safeManager.FinalizeSafeOverWebSocketAsync();
             LoadInformation();
         }
-        //Добавление записи в сейф
+        // Добавление записи в сейф
         private async void AddSafe_Click(object sender, EventArgs e)
         {
             await safeManager.PostSafe();

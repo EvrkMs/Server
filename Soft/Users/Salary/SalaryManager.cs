@@ -6,24 +6,32 @@ namespace Soft.Users.Salary
     {
         private readonly MaterialListView salaryListView = salaryListView;
         private readonly Label currentSalaryLabel = currentSalaryLabel;
-
-        // Метод для получения истории зарплат
         public async Task LoadSalaryHistoryAsync(int employeeId)
         {
             await Form1.SendMessageAsync($"GetSalaryHistory:{employeeId}");
             var salaryHistoryResponse = await Form1.ReceiveMessageAsync();
-            PopulateSalaryHistory(salaryHistoryResponse);
+            await PopulateSalaryHistory(salaryHistoryResponse, employeeId); // Передаем employeeId
         }
-
-        // Заполнение списка истории зарплат
-        private void PopulateSalaryHistory(string salaryHistoryResponse)
+        private async Task PopulateSalaryHistory(string salaryHistoryResponse, int employeeId)
         {
             salaryListView.Items.Clear();
             var salaryHistory = Newtonsoft.Json.JsonConvert.DeserializeObject<List<SalaryHistory>>(salaryHistoryResponse);
 
             if (salaryHistory == null || salaryHistory.Count == 0)
             {
-                MessageBox.Show("История зарплат у сотрудника пуста");
+                // Отправляем запрос на добавление записи с суммой 0 по employeeId
+                await Form1.SendMessageAsync($"PostZarp:{employeeId}:0");
+
+                var serverResponse = await Form1.ReceiveMessageAsync();
+                if (serverResponse.Contains($"Зарплата обновлена для сотрудника с ID {employeeId}. Изменение: 0"))
+                {
+                    Form1.LogMessage($"Запись о зарплате для сотрудника с ID {employeeId} успешно добавлена.");
+                }
+                else
+                {
+                    MessageBox.Show($"Ошибка при добавлении записи о зарплате: {serverResponse}");
+                }
+
                 return;
             }
 
