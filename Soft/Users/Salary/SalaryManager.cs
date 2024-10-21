@@ -25,7 +25,7 @@ namespace Soft.Users.Salary
 
             if (salaryChanges == null || salaryChanges.Count == 0)
             {
-                MessageBox.Show("История изменений зарплат пуста.");
+                Form1.LogMessage("История изменений зарплат пуста.");
                 return;
             }
 
@@ -53,14 +53,22 @@ namespace Soft.Users.Salary
 
             if (salaryHistory == null || salaryHistory.Count == 0)
             {
-                MessageBox.Show("История финализированных зарплат пуста.");
                 return;
             }
 
             foreach (var history in salaryHistory)
             {
+                string IsPaid;
+                if (history.IsPaid)
+                {
+                    IsPaid = "Выплачено";
+                }else
+                {
+                    IsPaid = "Не выплачено";
+                }
                 var listItem = new ListViewItem(history.FinalizedDate.ToString("dd-MM-yyyy"));
                 listItem.SubItems.Add(history.TotalSalary.ToString("C"));
+                listItem.SubItems.Add(IsPaid);
                 _salaryChangedHistoryListView.Items.Add(listItem);
             }
         }
@@ -93,7 +101,6 @@ namespace Soft.Users.Salary
                 }
                 else
                 {
-                    MessageBox.Show("Не удалось получить актуальную зарплату.");
                     return 0;
                 }
             }
@@ -121,7 +128,7 @@ namespace Soft.Users.Salary
     {
         public int Id { get; set; }
         public int SalaryId { get; set; }
-        public int ChangeAmount { get; set; }
+        public decimal ChangeAmount { get; set; }
         public DateTime ChangeDate { get; set; }
 
         public Salary? Salary { get; set; }
@@ -130,9 +137,9 @@ namespace Soft.Users.Salary
     public class SalaryHistory
     {
         public int Id { get; set; }
-        public int SalaryHistoryId { get; set; }
         public int UserId { get; set; }
-        public int TotalSalary { get; set; }
+        public decimal TotalSalary { get; set; }
         public DateTime FinalizedDate { get; set; }
+        public bool IsPaid { get; set; } = false;
     }
 }

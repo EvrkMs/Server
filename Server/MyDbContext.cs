@@ -7,7 +7,6 @@ namespace Server
     public class MyDbContext(DbContextOptions<MyDbContext> options) : DbContext(options)
     {
         public DbSet<User> Users { get; set; }
-        public DbSet<ArchivedUser> ArchivedUsers { get; set; }
         public DbSet<TelegramSettings> TelegramSettings { get; set; }
         public DbSet<Salary> Salaries { get; set; }
         public DbSet<SalaryChange> SalaryChanges { get; set; }
@@ -28,7 +27,7 @@ namespace Server
             modelBuilder.Entity<Salary>()
                 .HasMany(s => s.SalaryChanges) // Один Salary имеет много изменений
                 .WithOne() // Каждое изменение связано с одним Salary
-                .HasForeignKey(sc => sc.SalaryId) // Внешний ключ SalaryChange ссылается на Salary
+                .HasForeignKey(sc => sc.UserId) // Внешний ключ SalaryChange ссылается на Salary
                 .OnDelete(DeleteBehavior.Cascade); // При удалении Salary, изменения удаляются
 
             // Связь между User и SalaryHistory
@@ -37,10 +36,6 @@ namespace Server
                 .WithMany() // У User может быть много записей SalaryHistory
                 .HasForeignKey(sh => sh.UserId) // Внешний ключ SalaryHistory ссылается на User
                 .OnDelete(DeleteBehavior.Restrict); // Запрещаем каскадное удаление
-
-            // Настройка архивации: связь между User и ArchivedUser по UserId
-            modelBuilder.Entity<ArchivedUser>()
-                .HasKey(au => au.UserId); // UserId остаётся неизменным для архивированных пользователей
 
             // Устанавливаем значение по умолчанию для TotalSalary
             modelBuilder.Entity<Salary>()
@@ -57,38 +52,25 @@ namespace Server
 
     public class User
     {
-        [Key]
-        public int UserId { get; set; } // Автоинкрементируемый первичный ключ
+        public int UserId { get; set; }
         public string Name { get; set; }
         public long TelegramId { get; set; }
         public int Count { get; set; }
         public int Zarp { get; set; }
-
+        // Флаг для архивирования
+        public bool IsArchived { get; set; } = false; // По умолчанию пользователь не архивирован
         public virtual Salary Salary { get; set; } // Связь с таблицей Salary
-    }
-
-    public class ArchivedUser
-    {
-        [Key]
-        public int UserId { get; set; } // Идентификатор пользователя остаётся неизменным
-        public string Name { get; set; }
-        public long TelegramId { get; set; }
-        public int Count { get; set; }
-        public int Zarp { get; set; }
-        public DateTime ArchivedDate { get; set; }
     }
 
     public class Salary
     {
         [Key]
-        public int SalaryId { get; set; }
+        [ForeignKey("User")]  // Привязка к таблице Users
+        public int UserId { get; set; }
 
-        [ForeignKey("User")]
-        public int UserId { get; set; } // Привязка к таблице Users
+        public decimal TotalSalary { get; set; }  // Текущая сумма зарплаты
 
-        public decimal TotalSalary { get; set; } // Текущая зарплата
-
-        public virtual List<SalaryChange> SalaryChanges { get; set; } // Связь с изменениями зарплат
+        public virtual List<SalaryChange> SalaryChanges { get; set; }  // Связь с изменениями зарплаты
     }
 
     public class SalaryChange
@@ -96,24 +78,26 @@ namespace Server
         [Key]
         public int Id { get; set; }
 
-        [ForeignKey("Salary")]
-        public int SalaryId { get; set; } // Связь с таблицей Salary
+        [ForeignKey("User")]
+        public int UserId { get; set; }  // Привязка к таблице Users (или ArchivedUsers)
 
-        public int ChangeAmount { get; set; } // Изменение суммы
-        public DateTime ChangeDate { get; set; } // Дата изменения
+        public decimal ChangeAmount { get; set; }  // Сумма изменения (прибавка/вычитание)
+
+        public DateTime ChangeDate { get; set; }  // Дата изменения
     }
-
     public class SalaryHistory
     {
         [Key]
         public int Id { get; set; }
 
         [ForeignKey("User")]
-        public int UserId { get; set; } // Привязка к пользователю
+        public int UserId { get; set; }  // Привязка к пользователю
 
-        public decimal TotalSalary { get; set; } // Итоговая зарплата после пересчёта
-        public DateTime FinalizedDate { get; set; } // Дата пересчёта
-        public bool IsPaid { get; set; } = false; // Поле для отметки, выплачена ли зарплата
+        public decimal TotalSalary { get; set; }  // Итоговая зарплата после пересчёта
+
+        public DateTime FinalizedDate { get; set; }  // Дата финализации зарплаты
+
+        public bool IsPaid { get; set; } = false;  // Статус выплаты (по умолчанию false)
     }
 
     public class Safe

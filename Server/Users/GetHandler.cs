@@ -1,7 +1,7 @@
-﻿using System.Net.WebSockets;
-using System.Text.Json;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Net.WebSockets;
 using System.Text;
-using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace Server.Users
 {
@@ -20,7 +20,11 @@ namespace Server.Users
         {
             using var scope = services.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<MyDbContext>();
-            return await dbContext.Users.ToListAsync();
+
+            // Возвращаем только активных пользователей (тех, у которых IsArchived = false)
+            return await dbContext.Users
+                                  .Where(u => !u.IsArchived) // Фильтруем по флагу архивирования
+                                  .ToListAsync();
         }
         public static async Task HandleGetArchivedUsers(IServiceProvider services, WebSocket webSocket, WebSocketReceiveResult result)
         {
@@ -65,11 +69,11 @@ namespace Server.Users
                 await HandlerUtils.SendErrorMessage(webSocket, result, $"Не удалось разархивировать пользователя с ID {userId}.");
             }
         }
-        private static async Task<List<ArchivedUser>> GetArchivedUsersAsync(IServiceProvider services)
+        public static async Task<List<User>> GetArchivedUsersAsync(IServiceProvider services)
         {
             using var scope = services.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<MyDbContext>();
-            return await dbContext.ArchivedUsers.ToListAsync();
+            return await dbContext.Users.Where(u => u.IsArchived).ToListAsync(); // Возвращаем только архивированных пользователей
         }
     }
 }

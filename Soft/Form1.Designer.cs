@@ -20,6 +20,7 @@ namespace Soft
 
         private void InitializeComponent()
         {
+            ColumnHeader columnDate;
             refreshButton = new MaterialButton();
             tabSelector = new MaterialTabSelector();
             tabControl = new MaterialTabControl();
@@ -30,12 +31,6 @@ namespace Soft
             columnTelegramId = new ColumnHeader();
             columnCount = new ColumnHeader();
             columnZarp = new ColumnHeader();
-            employeesArchivedList = new MaterialListView();
-            columnArchivedId = new ColumnHeader();
-            columnArchivedName = new ColumnHeader();
-            columnArchivedTelegramId = new ColumnHeader();
-            columnArchivedCount = new ColumnHeader();
-            columnArchivedSalary = new ColumnHeader();
             editButton = new MaterialButton();
             addButton = new MaterialButton();
             archiveButton = new MaterialButton();
@@ -46,14 +41,15 @@ namespace Soft
             columnHeader2 = new ColumnHeader();
             addSumSalary = new MaterialButton();
             salaryChangedHistoryListView = new MaterialListView();
-            columnDate = new ColumnHeader();
             columnAmount = new ColumnHeader();
+            columnIsPaid = new ColumnHeader();
             selectedEmployeesList = new MaterialListView();
             selectedEmployeeId = new ColumnHeader();
             selectedEmployeeName = new ColumnHeader();
             columnHeader3 = new ColumnHeader();
-            salarySearchTextBox = new MaterialTextBox();
-            salaryHistoryButton = new MaterialButton();
+            salaryUsersTab = new TabPage();
+            finalizeButton = new MaterialButton();
+            materialListView1 = new MaterialListView();
             telegramTab = new TabPage();
             tradListView = new MaterialListView();
             columnTradSmena = new ColumnHeader();
@@ -75,13 +71,20 @@ namespace Soft
             columnSum = new ColumnHeader();
             finalezButton = new MaterialButton();
             progressBar = new MaterialProgressBar();
+            columnDate = new ColumnHeader();
             tabControl.SuspendLayout();
             employeesTab.SuspendLayout();
             salaryTab.SuspendLayout();
             salaryChangedListView.SuspendLayout();
+            salaryUsersTab.SuspendLayout();
             telegramTab.SuspendLayout();
             safeTab.SuspendLayout();
             SuspendLayout();
+            // 
+            // columnDate
+            // 
+            columnDate.Text = "Дата";
+            columnDate.Width = 150;
             // 
             // refreshButton
             // 
@@ -127,6 +130,7 @@ namespace Soft
             tabControl.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             tabControl.Controls.Add(employeesTab);
             tabControl.Controls.Add(salaryTab);
+            tabControl.Controls.Add(salaryUsersTab);
             tabControl.Controls.Add(telegramTab);
             tabControl.Controls.Add(safeTab);
             tabControl.Depth = 0;
@@ -141,7 +145,6 @@ namespace Soft
             // employeesTab
             // 
             employeesTab.Controls.Add(employeesList);
-            employeesTab.Controls.Add(employeesArchivedList);
             employeesTab.Controls.Add(editButton);
             employeesTab.Controls.Add(addButton);
             employeesTab.Controls.Add(archiveButton);
@@ -169,10 +172,11 @@ namespace Soft
             employeesList.MouseState = MouseState.OUT;
             employeesList.Name = "employeesList";
             employeesList.OwnerDraw = true;
-            employeesList.Size = new Size(926, 222);
+            employeesList.Size = new Size(926, 396);
             employeesList.TabIndex = 0;
             employeesList.UseCompatibleStateImageBehavior = false;
             employeesList.View = View.Details;
+            employeesList.SelectedIndexChanged += EmployeesList_SelectedIndexChanged;
             // 
             // columnId
             // 
@@ -198,51 +202,6 @@ namespace Soft
             // 
             columnZarp.Text = "Зарплата";
             columnZarp.Width = 100;
-            // 
-            // employeesArchivedList
-            // 
-            employeesArchivedList.AutoSizeTable = false;
-            employeesArchivedList.BackColor = Color.FromArgb(255, 255, 255);
-            employeesArchivedList.BorderStyle = BorderStyle.None;
-            employeesArchivedList.Columns.AddRange(new ColumnHeader[] { columnArchivedId, columnArchivedName, columnArchivedTelegramId, columnArchivedCount, columnArchivedSalary });
-            employeesArchivedList.Depth = 0;
-            employeesArchivedList.Dock = DockStyle.Bottom;
-            employeesArchivedList.FullRowSelect = true;
-            employeesArchivedList.Location = new Point(3, 225);
-            employeesArchivedList.MinimumSize = new Size(200, 100);
-            employeesArchivedList.MouseLocation = new Point(-1, -1);
-            employeesArchivedList.MouseState = MouseState.OUT;
-            employeesArchivedList.Name = "employeesArchivedList";
-            employeesArchivedList.OwnerDraw = true;
-            employeesArchivedList.Size = new Size(926, 174);
-            employeesArchivedList.TabIndex = 5;
-            employeesArchivedList.UseCompatibleStateImageBehavior = false;
-            employeesArchivedList.View = View.Details;
-            // 
-            // columnArchivedId
-            // 
-            columnArchivedId.Text = "id";
-            columnArchivedId.Width = 100;
-            // 
-            // columnArchivedName
-            // 
-            columnArchivedName.Text = "Имя";
-            columnArchivedName.Width = 150;
-            // 
-            // columnArchivedTelegramId
-            // 
-            columnArchivedTelegramId.Text = "Телеграм id";
-            columnArchivedTelegramId.Width = 150;
-            // 
-            // columnArchivedCount
-            // 
-            columnArchivedCount.Text = "id Топика";
-            columnArchivedCount.Width = 150;
-            // 
-            // columnArchivedSalary
-            // 
-            columnArchivedSalary.Text = "Зарплата";
-            columnArchivedSalary.Width = 200;
             // 
             // editButton
             // 
@@ -329,8 +288,6 @@ namespace Soft
             salaryTab.Controls.Add(salaryChangedListView);
             salaryTab.Controls.Add(salaryChangedHistoryListView);
             salaryTab.Controls.Add(selectedEmployeesList);
-            salaryTab.Controls.Add(salarySearchTextBox);
-            salaryTab.Controls.Add(salaryHistoryButton);
             salaryTab.Location = new Point(4, 24);
             salaryTab.Name = "salaryTab";
             salaryTab.Size = new Size(932, 546);
@@ -348,13 +305,13 @@ namespace Soft
             salaryChangedListView.Depth = 0;
             salaryChangedListView.Dock = DockStyle.Right;
             salaryChangedListView.FullRowSelect = true;
-            salaryChangedListView.Location = new Point(446, 100);
+            salaryChangedListView.Location = new Point(446, 42);
             salaryChangedListView.MinimumSize = new Size(200, 100);
             salaryChangedListView.MouseLocation = new Point(-1, -1);
             salaryChangedListView.MouseState = MouseState.OUT;
             salaryChangedListView.Name = "salaryChangedListView";
             salaryChangedListView.OwnerDraw = true;
-            salaryChangedListView.Size = new Size(486, 370);
+            salaryChangedListView.Size = new Size(486, 504);
             salaryChangedListView.TabIndex = 4;
             salaryChangedListView.UseCompatibleStateImageBehavior = false;
             salaryChangedListView.View = View.Details;
@@ -377,7 +334,7 @@ namespace Soft
             addSumSalary.Dock = DockStyle.Bottom;
             addSumSalary.HighEmphasis = true;
             addSumSalary.Icon = null;
-            addSumSalary.Location = new Point(0, 334);
+            addSumSalary.Location = new Point(0, 468);
             addSumSalary.Margin = new Padding(4, 6, 4, 6);
             addSumSalary.MouseState = MouseState.HOVER;
             addSumSalary.Name = "addSumSalary";
@@ -395,30 +352,30 @@ namespace Soft
             salaryChangedHistoryListView.AutoSizeTable = false;
             salaryChangedHistoryListView.BackColor = Color.FromArgb(255, 255, 255);
             salaryChangedHistoryListView.BorderStyle = BorderStyle.None;
-            salaryChangedHistoryListView.Columns.AddRange(new ColumnHeader[] { columnDate, columnAmount });
+            salaryChangedHistoryListView.Columns.AddRange(new ColumnHeader[] { columnDate, columnAmount, columnIsPaid });
             salaryChangedHistoryListView.Depth = 0;
             salaryChangedHistoryListView.Dock = DockStyle.Left;
             salaryChangedHistoryListView.FullRowSelect = true;
-            salaryChangedHistoryListView.Location = new Point(0, 100);
+            salaryChangedHistoryListView.Location = new Point(0, 42);
             salaryChangedHistoryListView.MinimumSize = new Size(200, 100);
             salaryChangedHistoryListView.MouseLocation = new Point(-1, -1);
             salaryChangedHistoryListView.MouseState = MouseState.OUT;
             salaryChangedHistoryListView.Name = "salaryChangedHistoryListView";
             salaryChangedHistoryListView.OwnerDraw = true;
-            salaryChangedHistoryListView.Size = new Size(446, 370);
+            salaryChangedHistoryListView.Size = new Size(444, 504);
             salaryChangedHistoryListView.TabIndex = 0;
             salaryChangedHistoryListView.UseCompatibleStateImageBehavior = false;
             salaryChangedHistoryListView.View = View.Details;
             // 
-            // columnDate
-            // 
-            columnDate.Text = "Дата";
-            columnDate.Width = 150;
-            // 
             // columnAmount
             // 
             columnAmount.Text = "Сумма";
-            columnAmount.Width = 100;
+            columnAmount.Width = 150;
+            // 
+            // columnIsPaid
+            // 
+            columnIsPaid.Text = "Выплаты";
+            columnIsPaid.Width = 200;
             // 
             // selectedEmployeesList
             // 
@@ -430,12 +387,12 @@ namespace Soft
             selectedEmployeesList.Dock = DockStyle.Top;
             selectedEmployeesList.FullRowSelect = true;
             selectedEmployeesList.Location = new Point(0, 0);
-            selectedEmployeesList.MinimumSize = new Size(200, 100);
+            selectedEmployeesList.MinimumSize = new Size(200, 20);
             selectedEmployeesList.MouseLocation = new Point(-1, -1);
             selectedEmployeesList.MouseState = MouseState.OUT;
             selectedEmployeesList.Name = "selectedEmployeesList";
             selectedEmployeesList.OwnerDraw = true;
-            selectedEmployeesList.Size = new Size(932, 100);
+            selectedEmployeesList.Size = new Size(932, 42);
             selectedEmployeesList.TabIndex = 4;
             selectedEmployeesList.UseCompatibleStateImageBehavior = false;
             selectedEmployeesList.View = View.Details;
@@ -454,47 +411,56 @@ namespace Soft
             columnHeader3.Text = "Актуальная ЗП";
             columnHeader3.Width = 300;
             // 
-            // salarySearchTextBox
+            // salaryUsersTab
             // 
-            salarySearchTextBox.AnimateReadOnly = false;
-            salarySearchTextBox.BorderStyle = BorderStyle.None;
-            salarySearchTextBox.Depth = 0;
-            salarySearchTextBox.Dock = DockStyle.Bottom;
-            salarySearchTextBox.Font = new Font("Roboto", 16F, FontStyle.Regular, GraphicsUnit.Pixel);
-            salarySearchTextBox.Hint = "Введите ID или имя сотрудника";
-            salarySearchTextBox.LeadingIcon = null;
-            salarySearchTextBox.Location = new Point(0, 470);
-            salarySearchTextBox.MaxLength = 50;
-            salarySearchTextBox.MouseState = MouseState.OUT;
-            salarySearchTextBox.Multiline = false;
-            salarySearchTextBox.Name = "salarySearchTextBox";
-            salarySearchTextBox.Size = new Size(932, 50);
-            salarySearchTextBox.TabIndex = 2;
-            salarySearchTextBox.Text = "";
-            salarySearchTextBox.TrailingIcon = null;
-            salarySearchTextBox.Visible = false;
+            salaryUsersTab.Controls.Add(finalizeButton);
+            salaryUsersTab.Controls.Add(materialListView1);
+            salaryUsersTab.Location = new Point(4, 24);
+            salaryUsersTab.Name = "salaryUsersTab";
+            salaryUsersTab.Size = new Size(932, 546);
+            salaryUsersTab.TabIndex = 4;
+            salaryUsersTab.Text = "Зарплата всех сотрудников";
+            salaryUsersTab.UseVisualStyleBackColor = true;
             // 
-            // salaryHistoryButton
+            // finalizeButton
             // 
-            salaryHistoryButton.AutoSize = false;
-            salaryHistoryButton.AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            salaryHistoryButton.Density = MaterialButton.MaterialButtonDensity.Default;
-            salaryHistoryButton.Depth = 0;
-            salaryHistoryButton.Dock = DockStyle.Bottom;
-            salaryHistoryButton.HighEmphasis = true;
-            salaryHistoryButton.Icon = null;
-            salaryHistoryButton.Location = new Point(0, 520);
-            salaryHistoryButton.Margin = new Padding(4, 6, 4, 6);
-            salaryHistoryButton.MouseState = MouseState.HOVER;
-            salaryHistoryButton.Name = "salaryHistoryButton";
-            salaryHistoryButton.NoAccentTextColor = Color.Empty;
-            salaryHistoryButton.Size = new Size(932, 26);
-            salaryHistoryButton.TabIndex = 3;
-            salaryHistoryButton.Text = "Показать историю зарплат";
-            salaryHistoryButton.Type = MaterialButton.MaterialButtonType.Contained;
-            salaryHistoryButton.UseAccentColor = false;
-            salaryHistoryButton.Visible = false;
-            salaryHistoryButton.Click += OpenSalaryHistoryTab;
+            finalizeButton.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            finalizeButton.Density = MaterialButton.MaterialButtonDensity.Default;
+            finalizeButton.Depth = 0;
+            finalizeButton.Dock = DockStyle.Bottom;
+            finalizeButton.HighEmphasis = true;
+            finalizeButton.Icon = null;
+            finalizeButton.Location = new Point(0, 510);
+            finalizeButton.Margin = new Padding(4, 6, 4, 6);
+            finalizeButton.MouseState = MouseState.HOVER;
+            finalizeButton.Name = "finalizeButton";
+            finalizeButton.NoAccentTextColor = Color.Empty;
+            finalizeButton.Size = new Size(932, 36);
+            finalizeButton.TabIndex = 6;
+            finalizeButton.Text = "Пересчёт зарплаты";
+            finalizeButton.Type = MaterialButton.MaterialButtonType.Contained;
+            finalizeButton.UseAccentColor = false;
+            finalizeButton.UseVisualStyleBackColor = true;
+            finalizeButton.Click += FinalizeSalaryButton_Click;
+            // 
+            // materialListView1
+            // 
+            materialListView1.AutoSizeTable = false;
+            materialListView1.BackColor = Color.FromArgb(255, 255, 255);
+            materialListView1.BorderStyle = BorderStyle.None;
+            materialListView1.Depth = 0;
+            materialListView1.Dock = DockStyle.Fill;
+            materialListView1.FullRowSelect = true;
+            materialListView1.Location = new Point(0, 0);
+            materialListView1.MinimumSize = new Size(200, 100);
+            materialListView1.MouseLocation = new Point(-1, -1);
+            materialListView1.MouseState = MouseState.OUT;
+            materialListView1.Name = "materialListView1";
+            materialListView1.OwnerDraw = true;
+            materialListView1.Size = new Size(932, 546);
+            materialListView1.TabIndex = 0;
+            materialListView1.UseCompatibleStateImageBehavior = false;
+            materialListView1.View = View.Details;
             // 
             // telegramTab
             // 
@@ -738,6 +704,8 @@ namespace Soft
             salaryTab.ResumeLayout(false);
             salaryChangedListView.ResumeLayout(false);
             salaryChangedListView.PerformLayout();
+            salaryUsersTab.ResumeLayout(false);
+            salaryUsersTab.PerformLayout();
             telegramTab.ResumeLayout(false);
             telegramTab.PerformLayout();
             safeTab.ResumeLayout(false);
@@ -765,8 +733,6 @@ namespace Soft
         private MaterialListView salaryChangedHistoryListView;
         private ColumnHeader columnDate;
         private ColumnHeader columnAmount;
-        private MaterialTextBox salarySearchTextBox;
-        private MaterialButton salaryHistoryButton;
         private TabPage telegramTab;
         private MaterialListView tradListView;
         private ColumnHeader columnTradSmena;
@@ -787,12 +753,6 @@ namespace Soft
         private MaterialButton finalezButton;
         private Label currentSafeLabel;
         private MaterialButton addSafe;
-        private MaterialListView employeesArchivedList;
-        private ColumnHeader columnArchivedId;
-        private ColumnHeader columnArchivedName;
-        private ColumnHeader columnArchivedTelegramId;
-        private ColumnHeader columnArchivedCount;
-        private ColumnHeader columnArchivedSalary;
         private MaterialButton addSumSalary;
         private MaterialListView salaryChangedListView;
         private ColumnHeader columnHeader1;
@@ -801,5 +761,9 @@ namespace Soft
         private ColumnHeader selectedEmployeeId;
         private ColumnHeader selectedEmployeeName;
         private ColumnHeader columnHeader3;
+        private TabPage salaryUsersTab;
+        private MaterialListView materialListView1;
+        private MaterialButton finalizeButton;
+        private ColumnHeader columnIsPaid;
     }
 }

@@ -1,8 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Server
 {
@@ -63,49 +59,19 @@ namespace Server
         public async Task<bool> ArchiveUserAsync(int userId)
         {
             var user = await _context.Users.FindAsync(userId);
-            if (user == null)
-            {
-                return false;
-            }
+            if (user == null) return false;
 
-            // Переносим данные в архив
-            var archivedUser = new ArchivedUser
-            {
-                UserId = user.UserId,
-                Name = user.Name,
-                TelegramId = user.TelegramId,
-                Count = user.Count,
-                Zarp = user.Zarp,
-                ArchivedDate = DateTime.UtcNow
-            };
-            _context.ArchivedUsers.Add(archivedUser);
-
-            // Удаляем из активных пользователей
-            _context.Users.Remove(user);
+            user.IsArchived = true; // Устанавливаем флаг "архивирован"
             await _context.SaveChangesAsync();
             return true;
         }
         // Разархивация пользователя
         public async Task<bool> ReArchiveUserAsync(int userId)
         {
-            var archivedUser = await _context.ArchivedUsers.FindAsync(userId);
-            if (archivedUser == null)
-            {
-                return false;
-            }
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null || !user.IsArchived) return false;
 
-            var restoredUser = new User
-            {
-                UserId = archivedUser.UserId, // Восстанавливаем тот же ID
-                Name = archivedUser.Name,
-                TelegramId = archivedUser.TelegramId,
-                Count = archivedUser.Count,
-                Zarp = archivedUser.Zarp
-            };
-            _context.Users.Add(restoredUser);
-
-            // Удаляем запись из архива
-            _context.ArchivedUsers.Remove(archivedUser);
+            user.IsArchived = false; // Убираем флаг "архивирован"
             await _context.SaveChangesAsync();
             return true;
         }
@@ -124,77 +90,75 @@ namespace Server
             return await _context.SalaryHistory.Where(s => s.UserId == employeeId).ToListAsync();
         }
         // Метод для обновления зарплаты сотрудника
-        public async Task<bool> UpdateSalaryByIdAsync(int employeeId, int zpChange)
+        public async Task<bool> UpdateSalaryByIdAsync(int userId, decimal zpChange)
         {
-            // Получаем пользователя вместе с его зарплатой
-            var user = await _context.Users
-                .Include(u => u.Salary)
-                .FirstOrDefaultAsync(u => u.UserId == employeeId);
+            // Получаем зарплату пользователя
+            var salary = await _context.Salaries.FirstOrDefaultAsync(s => s.UserId == userId);
 
-            // Проверяем, существует ли пользователь
-            if (user == null) return false;
-
-            // Если у пользователя нет записи о зарплате, создаем новую
-            if (user.Salary == null)
+            if (salary == null)
             {
-                user.Salary = new Salary { UserId = user.UserId, TotalSalary = 0 };
-                await _context.Salaries.AddAsync(user.Salary);
-                await _context.SaveChangesAsync(); // Сохраняем SalaryId для изменений
+                // Если зарплата не существует, создаем новую запись
+                salary = new Salary
+                {
+                    UserId = userId,
+                    TotalSalary = 0
+                };
+                _context.Salaries.Add(salary);
             }
 
-            // Обновляем общую сумму зарплаты
-            user.Salary.TotalSalary += zpChange;
+            // Обновляем зарплату
+            salary.TotalSalary += zpChange;
 
-            // Создаем запись об изменении зарплаты
+            // Добавляем изменение зарплаты в историю изменений
             var salaryChange = new SalaryChange
             {
-                SalaryId = user.Salary.SalaryId, // Убедись, что SalaryId существует
+                UserId = userId,  // Привязка к UserId
                 ChangeAmount = zpChange,
                 ChangeDate = DateTime.Now
             };
 
-            await _context.SalaryChanges.AddAsync(salaryChange);
+            _context.SalaryChanges.Add(salaryChange);
 
-            // Сохраняем изменения в базе данных
             await _context.SaveChangesAsync();
             return true;
         }
-        public async Task<List<SalaryChange>> GetSalaryChangesBySalaryIdAsync(int salaryId)
+        public async Task<List<SalaryChange>> GetSalaryChangesByUserIdAsync(int userId)
         {
             return await _context.SalaryChanges
-                .Where(sc => sc.SalaryId == salaryId)
-                .ToListAsync();
+                                 .Where(sc => sc.UserId == userId)  // Привязка к UserId
+                                 .ToListAsync();
         }
         // Пересчёт зарплат и добавление их в историю
         public async Task FinalizeSalariesAsync()
         {
-            using (var transaction = await _context.Database.BeginTransactionAsync())
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
             {
-                try
-                {
-                    var allSalaries = await _context.Salaries.Include(s => s.SalaryChanges).ToListAsync();
+                var allSalaries = await _context.Salaries.Include(s => s.SalaryChanges).ToListAsync();
 
-                    foreach (var salary in allSalaries)
+                foreach (var salary in allSalaries)
+                {
+                    var salaryHistory = new SalaryHistory
                     {
-                        var salaryHistory = new SalaryHistory
-                        {
-                            UserId = salary.UserId,
-                            TotalSalary = salary.TotalSalary,
-                            FinalizedDate = DateTime.Now,
-                            IsPaid = false
-                        };
-                        _context.SalaryHistory.Add(salaryHistory);
-                    }
+                        UserId = salary.UserId,
+                        TotalSalary = salary.TotalSalary,
+                        FinalizedDate = DateTime.Now,
+                        IsPaid = false
+                    };
 
-                    _context.Salaries.RemoveRange(allSalaries);
-                    await _context.SaveChangesAsync();
-                    await transaction.CommitAsync();
+                    _context.SalaryHistory.Add(salaryHistory);
                 }
-                catch (Exception ex)
-                {
-                    await transaction.RollbackAsync();
-                    Console.WriteLine($"Ошибка при финализации зарплат: {ex.Message}");
-                }
+
+                // Обнуляем актуальные зарплаты после финализации
+                _context.Salaries.RemoveRange(allSalaries);
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                Console.WriteLine($"Ошибка при финализации зарплат: {ex.Message}");
             }
         }
         // Работа с сейфом

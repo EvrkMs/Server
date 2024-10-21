@@ -22,35 +22,6 @@ namespace Server.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Server.ArchivedUser", b =>
-                {
-                    b.Property<int>("UserId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
-
-                    b.Property<DateTime>("ArchivedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Count")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long>("TelegramId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("Zarp")
-                        .HasColumnType("int");
-
-                    b.HasKey("UserId");
-
-                    b.ToTable("ArchivedUsers");
-                });
-
             modelBuilder.Entity("Server.Safe", b =>
                 {
                     b.Property<int>("Id")
@@ -88,24 +59,15 @@ namespace Server.Migrations
 
             modelBuilder.Entity("Server.Salary", b =>
                 {
-                    b.Property<int>("SalaryId")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("UserId")
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SalaryId"));
 
                     b.Property<decimal>("TotalSalary")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("decimal(18,2)")
                         .HasDefaultValue(0m);
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("SalaryId");
-
-                    b.HasIndex("UserId")
-                        .IsUnique();
+                    b.HasKey("UserId");
 
                     b.ToTable("Salaries");
                 });
@@ -118,18 +80,18 @@ namespace Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ChangeAmount")
-                        .HasColumnType("int");
+                    b.Property<decimal>("ChangeAmount")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("ChangeDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("SalaryId")
+                    b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SalaryId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("SalaryChanges");
                 });
@@ -209,6 +171,9 @@ namespace Server.Migrations
                     b.Property<int>("Count")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -237,7 +202,7 @@ namespace Server.Migrations
                 {
                     b.HasOne("Server.Salary", null)
                         .WithMany("SalaryChanges")
-                        .HasForeignKey("SalaryId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

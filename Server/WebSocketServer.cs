@@ -22,7 +22,7 @@ namespace Server
                     switch (message.Split(':')[0])
                     {
                         case "GetSettings":
-                            await Settings.GetHandler.HandleGetSettings(context.RequestServices, webSocket, result );
+                            await Settings.GetHandler.HandleGetSettings(context.RequestServices, webSocket, result);
                             break;
                         case "PostNewSettings":
                             await Settings.PostHandler.HandlePostNewSettings(context.RequestServices, webSocket, result, message);

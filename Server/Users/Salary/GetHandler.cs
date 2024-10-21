@@ -1,6 +1,6 @@
 ﻿using System.Net.WebSockets;
-using System.Text.Json;
 using System.Text;
+using System.Text.Json;
 
 namespace Server.Users.Salary
 {
@@ -77,7 +77,7 @@ namespace Server.Users.Salary
             }
 
             var dbMethod = services.GetRequiredService<DBMethod>();
-            var salaryChanges = await dbMethod.GetSalaryChangesBySalaryIdAsync(salaryId);
+            var salaryChanges = await dbMethod.GetSalaryChangesByUserIdAsync(salaryId);
 
             if (salaryChanges == null || salaryChanges.Count == 0)
             {

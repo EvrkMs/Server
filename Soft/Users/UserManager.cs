@@ -2,31 +2,62 @@
 
 namespace Soft.Users
 {
-    public class UserManager(MaterialListView employeesList, MaterialListView employeesArchivedList)
+    public class UserManager(MaterialListView employeesList)
     {
         private readonly MaterialListView _employeesList = employeesList;
-        private readonly MaterialListView _employeesArchivedList = employeesArchivedList;
+        private ListViewGroup activeGroup;
+        private ListViewGroup archivedGroup;
+        public ListViewGroup GetActiveGroup() => activeGroup;
+        public ListViewGroup GetArchivedGroup() => archivedGroup;
 
         public async Task LoadUsersAsync()
         {
+            // Получаем активных сотрудников
             await Form1.SendMessageAsync("GetUsers");
             var employeesData = await Form1.ReceiveMessageAsync();
             var employees = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Users>>(employeesData);
-            AddSubItemInListView(_employeesList, employees);
 
+            // Получаем архивированных сотрудников
             await Form1.SendMessageAsync("GetArchivedUsers");
             var employeesArchivedData = await Form1.ReceiveMessageAsync();
             var employeesArchived = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Users>>(employeesArchivedData);
-            AddSubItemInListView(_employeesArchivedList, employeesArchived);
+
+            // Добавляем сотрудников в список с разделением по группам
+            AddSubItemInListView(_employeesList, employees, employeesArchived);
         }
 
-        private void AddSubItemInListView(MaterialListView listView, List<Users> employees)
+        private void AddSubItemInListView(MaterialListView listView, List<Users> activeEmployees, List<Users> archivedEmployees)
         {
             listView.Items.Clear();
 
-            foreach (var employee in employees)
+            // Создаем группы для активных и архивированных сотрудников
+            activeGroup = new ListViewGroup("Активные сотрудники", HorizontalAlignment.Left)
+            { 
+                Name = "activeGroup" 
+            };
+            archivedGroup = new ListViewGroup("Архивированные сотрудники", HorizontalAlignment.Left)
             {
-                var listItem = new ListViewItem(employee.UserId.ToString());
+                Name = "archivedGroup"
+            };
+
+            listView.Groups.Add(activeGroup);
+            listView.Groups.Add(archivedGroup);
+
+            // Добавляем активных сотрудников
+            foreach (var employee in activeEmployees)
+            {
+                var listItem = new ListViewItem(employee.UserId.ToString(), activeGroup);
+                listItem.SubItems.Add(employee.Name);
+                listItem.SubItems.Add(employee.TelegramId.ToString());
+                listItem.SubItems.Add(employee.Count.ToString());
+                listItem.SubItems.Add(employee.Zarp.ToString());
+                listView.Items.Add(listItem);
+            }
+
+            // Добавляем архивированных сотрудников
+            foreach (var employee in archivedEmployees)
+            {
+                var listItem = new ListViewItem(employee.UserId.ToString(), archivedGroup);
                 listItem.SubItems.Add(employee.Name);
                 listItem.SubItems.Add(employee.TelegramId.ToString());
                 listItem.SubItems.Add(employee.Count.ToString());
@@ -132,13 +163,13 @@ namespace Soft.Users
 
         public async Task ReArchiveEmployeeAsync()
         {
-            if (_employeesArchivedList.SelectedItems.Count == 0)
+            if (_employeesList.SelectedItems.Count == 0)
             {
                 MessageBox.Show("Выберите сотрудника для разархивирования.");
                 return;
             }
 
-            var selectedEmployee = _employeesArchivedList.SelectedItems[0];
+            var selectedEmployee = _employeesList.SelectedItems[0];
             int employeeId = Convert.ToInt32(selectedEmployee.Text);
 
             await Form1.SendMessageAsync($"GetReArchivedUser:{employeeId}");
@@ -163,5 +194,6 @@ namespace Soft.Users
         public long TelegramId { get; set; }
         public int Count { get; set; }
         public int Zarp { get; set; }
+        public bool IsArchived { get; set; }
     }
 }

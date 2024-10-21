@@ -5,6 +5,7 @@ using Soft.Users;
 using Soft.Users.Salary;
 using System.Net.WebSockets;
 using System.Text;
+using System.Windows.Forms;
 
 namespace Soft
 {
@@ -38,7 +39,7 @@ namespace Soft
 
         private void InitializeManagers()
         {
-            userManager = new UserManager(employeesList, employeesArchivedList);
+            userManager = new UserManager(employeesList);
             salaryManager = new SalaryManager(selectedEmployeesList, salaryChangedListView, salaryChangedHistoryListView);
             settingsManager = new SettingsManager(chatListView, tradListView);
             safeManager = new SafeManager(safeListView, currentSafeLabel);
@@ -178,37 +179,42 @@ namespace Soft
                 var selectedEmployee = employeesList.SelectedItems[0];
                 string employeeName = selectedEmployee.SubItems[1].Text;
 
-                DialogResult result = MessageBox.Show($"Вы уверены, что хотите архивировать сотрудника {employeeName}?",
-                                                      "Подтверждение архивирования",
-                                                      MessageBoxButtons.YesNo,
-                                                      MessageBoxIcon.Warning);
-
-                if (result == DialogResult.Yes)
+                // Проверяем, находится ли выбранный сотрудник в группе активных или архивированных
+                if (selectedEmployee.Group == userManager.GetActiveGroup()) // Группа активных
                 {
-                    await userManager.ArchiveEmployeeAsync();
+                    DialogResult result = MessageBox.Show($"Вы уверены, что хотите архивировать сотрудника {employeeName}?",
+                                                          "Подтверждение архивирования",
+                                                          MessageBoxButtons.YesNo,
+                                                          MessageBoxIcon.Warning);
+
+                    if (result == DialogResult.Yes)
+                    {
+                        await userManager.ArchiveEmployeeAsync();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Архивирование отменено.");
+                    }
+                }
+                else if (selectedEmployee.Group == userManager.GetArchivedGroup()) // Группа архивированных
+                {
+                    DialogResult result = MessageBox.Show($"Вы уверены, что хотите разархивировать сотрудника {employeeName}?",
+                                                          "Подтверждение разархивирования",
+                                                          MessageBoxButtons.YesNo,
+                                                          MessageBoxIcon.Question);
+
+                    if (result == DialogResult.Yes)
+                    {
+                        await userManager.ReArchiveEmployeeAsync();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Разархивирование отменено.");
+                    }
                 }
                 else
                 {
-                    MessageBox.Show("Архивирование отменено.");
-                }
-            }
-            else if (employeesArchivedList.SelectedItems.Count > 0)
-            {
-                var selectedArchivedEmployee = employeesArchivedList.SelectedItems[0];
-                string archivedEmployeeName = selectedArchivedEmployee.SubItems[1].Text;
-
-                DialogResult result = MessageBox.Show($"Вы уверены, что хотите разархивировать сотрудника {archivedEmployeeName}?",
-                                                      "Подтверждение разархивирования",
-                                                      MessageBoxButtons.YesNo,
-                                                      MessageBoxIcon.Question);
-
-                if (result == DialogResult.Yes)
-                {
-                    await userManager.ReArchiveEmployeeAsync();
-                }
-                else
-                {
-                    MessageBox.Show("Разархивирование отменено.");
+                    MessageBox.Show("Невозможно определить группу сотрудника.");
                 }
             }
             else
@@ -287,6 +293,52 @@ namespace Soft
             if (!Load)
             {
                 finalezButton.Visible = false;
+            }
+        }
+
+        private async void FinalizeSalaryButton_Click(object sender, EventArgs e)
+        {
+            DialogResult result = MessageBox.Show($"Вы уверены, что хотите провести пересчёт зарплат?",
+                                                  "Подтверждение пересчёта зарплат",
+                                                  MessageBoxButtons.YesNo,
+                                                  MessageBoxIcon.Warning);
+            if (result == DialogResult.Yes)
+            {
+                try
+                {
+                    // Отправляем запрос на сервер для финализации зарплат
+                    await Form1.SendMessageAsync("FinalizeSalaries");
+                    var serverResponse = await Form1.ReceiveMessageAsync();
+
+                    // Проверяем ответ от сервера
+                    if (serverResponse.Contains("успешно пересчитаны"))
+                    {
+                        MessageBox.Show("Зарплаты успешно пересчитаны и добавлены в историю.");
+                    }
+                    else
+                    {
+                        MessageBox.Show($"Ошибка при пересчёте зарплат: {serverResponse}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Произошла ошибка: {ex.Message}");
+                }
+            }
+        }
+
+        private void EmployeesList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (employeesList.SelectedItems.Count > 0)
+            {
+                var selectedEmployee = employeesList.SelectedItems[0];
+                if (selectedEmployee.Group == userManager.GetActiveGroup()) // Группа активных
+                {
+                    archiveButton.Text = "Архивировать";
+                }else if(selectedEmployee.Group == userManager.GetArchivedGroup())
+                {
+                    archiveButton.Text = "Разархивировать";
+                }
             }
         }
     }
